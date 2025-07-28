@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabbir's Notebook - Home</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cambria&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <span class="integral">∫</span>
+            <span class="title">abbir's Notebook</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#footer">Contacts</a></li>
+                <li>
+                    <button id="theme-toggle">Dark Mode</button>
+                </li>
+            </ul>
+        </nav>
+        <div class="page-title">I am at home.</div>
+    </header>
+
+    <div class="container">
+        <!-- Main Content -->
+        <main>
+            <section id="about">
+                <h2>About</h2>
+                <p>Welcome to Sabbir's Notebook, a collection of thoughts, writings, and mathematical explorations.</p>
+            </section>
+
+            <section id="works">
+                <h2>Works</h2>
+                <div class="search-filter">
+                    <input type="text" id="search" placeholder="Search works...">
+                    <select id="filter">
+                        <option value="all">All Tags</option>
+                        <option value="math">Math</option>
+                        <option value="poetry">Poetry</option>
+                        <option value="music">Music</option>
+                    </select>
+                    <select id="date-filter">
+                        <option value="recent">Most Recent</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+
+                <!-- Replace the works-list section with this -->
+
+
+    <div class="works-list">
+        <!-- Book 1 -->
+        <article class="work book" data-tags="math,calculus" data-date="2023-11-01">
+            <div class="book-cover">
+                <div class="book-spine"></div>
+                <h3>Calculus in the Words of a Beginner</h3>
+            </div>
+            <div class="book-details">
+                <div class="meta">
+                    <span class="date">November 2023</span>
+                    <span class="tags">Math, Calculus</span>
+                    <span class="pages">142 pages</span>
+                </div>
+                <p>A gentle introduction to calculus concepts through intuitive explanations and practical examples, written while learning the subject.</p>
+                <div class="chapter-links">
+                    <a href="calculus/chapter1.html">Chapter 1: Limits</a>
+                    <a href="calculus/chapter2.html">Chapter 2: Derivatives</a>
+                    <a href="calculus/chapter3.html">Chapter 3: Integrals</a>
+                </div>
+            </div>
+        </article>
+
+        <!-- Book 2 -->
+        <article class="work book" data-tags="math,number-theory" data-date="2023-09-15">
+            <div class="book-cover">
+                <div class="book-spine"></div>
+                <h3>Notes on Disquisitiones Arithmeticae</h3>
+            </div>
+            <div class="book-details">
+                <div class="meta">
+                    <span class="date">September 2023</span>
+                    <span class="tags">Math, Number Theory</span>
+                    <span class="pages">89 pages</span>
+                </div>
+                <p>Personal commentary and modern explanations of Gauss's foundational work in number theory.</p>
+                <div class="chapter-links">
+                    <a href="disquisitiones/chapter1.html">Section I: Congruent Numbers</a>
+                    <a href="disquisitiones/chapter2.html">Section II: Quadratic Forms</a>
+                </div>
+            </div>
+        </article>
+
+        <!-- Book 3 -->
+        <article class="work book" data-tags="math,research" data-date="2023-12-10">
+            <div class="book-cover">
+                <div class="book-spine"></div>
+                <h3>My Math Findings</h3>
+            </div>
+            <div class="book-details">
+                <div class="meta">
+                    <span class="date">December 2023</span>
+                    <span class="tags">Math, Research</span>
+                    <span class="pages">56 pages</span>
+                </div>
+                <p>A collection of original mathematical observations, conjectures, and small discoveries.</p>
+                <div class="chapter-links">
+                    <a href="findings/chapter1.html">Patterns in Prime Gaps</a>
+                    <a href="findings/chapter2.html">Geometric Constructions</a>
+                </div>
+            </div>
+        </article>
+    </div>
+
+            </section>
+
+            <section class="footnotes">
+                <h3>Footnotes</h3>
+                <ol>
+                    <li id="fn1">First footnote example. <a href="#fn1-ref" aria-label="Back to content">↩️</a></li>
+                    <li id="fn2">Second footnote example. <a href="#fn2-ref" aria-label="Back to content">↩️</a></li>
+                </ol>
+            </section>
+        </main>
+
+        <!-- Sidebar - Index -->
+        <aside>
+            <button class="sidebar-toggle">☰ Index</button>
+            <div class="sidebar-content">
+                <h3>Index</h3>
+                <ul class="index-list">
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#works">Works</a>
+                        <ul>
+                            <li><a href="#">Algebraic Topology</a></li>
+                            <li><a href="#">Autumn Leaves</a></li>
+                            <li><a href="#">Musical Harmony</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <div class="thought">
+            <p>"Mathematics is the music of reason." — James Joseph Sylvester</p>
+        </div>
+        <div class="social-links">
+            <a href="mailto:sabbir@example.com">Email</a>
+            <a href="https://linkedin.com/in/sabbir" target="_blank">LinkedIn</a>
+            <a href="https://youtube.com/sabbir" target="_blank">YouTube</a>
+            <a href="https://x.com/sabbir" target="_blank">X</a>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

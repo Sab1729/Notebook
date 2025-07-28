@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabbir's Notebook - Chapter</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cambria&display=swap" rel="stylesheet">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <span class="integral">∫</span>
+            <span class="title">abbir's Notebook</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#footer">Contacts</a></li>
+                <li>
+                    <button id="theme-toggle">Dark Mode</button>
+                </li>
+            </ul>
+        </nav>
+        <div class="page-title">Introduction to Algebraic Topology</div>
+    </header>
+
+    <div class="container">
+        <!-- Main Content -->
+        <main>
+            <article class="chapter">
+                <h1>Introduction to Algebraic Topology</h1>
+                
+                <h2>1. Fundamental Concepts</h2>
+                <pre class="math-code"><code>// Pseudocode for Newton's Method
+function newton(f, f', x0, ε):
+    while |f(x0)| > ε:
+        x0 = x0 - f(x0)/f'(x0)
+    return x0</code></pre>
+                <p>Algebraic topology is a branch of mathematics that uses tools from abstract algebra to study topological spaces. The basic goal is to find algebraic invariants that classify topological spaces up to homeomorphism.</p>
+                
+                <p>The fundamental group is one of the first algebraic invariants we encounter. For a topological space \(X\) with a chosen point \(x_0\), the fundamental group \(\pi_1(X, x_0)\) consists of homotopy classes of loops based at \(x_0\).</p>
+                
+                <figure>
+                    <img src="https://via.placeholder.com/400x200?text=Figure+1" alt="Diagram of a topological space">
+                    <figcaption>Fig. 1: A topological space with marked basepoint</figcaption>
+                </figure>
+                
+                <h3>1.1 Homotopy Theory</h3>
+                <p>Two continuous functions \(f, g: X \to Y\) are called homotopic if there exists a continuous map \(H: X \times [0,1] \to Y\) such that \(H(x,0) = f(x)\) and \(H(x,1) = g(x)\) for all \(x \in X\).</p>
+                
+                <p>The fundamental theorem of algebra can be proved using methods from algebraic topology<a href="#fn1" id="fn1-ref" class="footnote-ref">[1]</a>.</p>
+                
+                <h2>2. Homology Groups</h2>
+                <p>Homology groups provide another way to associate algebraic objects to topological spaces. The \(n\)-th homology group \(H_n(X)\) measures the number of \(n\)-dimensional "holes" in the space \(X\).</p>
+                
+                <p>For example, the homology groups of the 2-sphere \(S^2\) are:</p>
+                <ul>
+                    <li>\(H_0(S^2) \cong \mathbb{Z}\)</li>
+                    <li>\(H_1(S^2) \cong 0\)</li>
+                    <li>\(H_2(S^2) \cong \mathbb{Z}\)</li>
+                    <li>\(H_n(S^2) \cong 0\) for \(n \geq 3\)</li>
+                </ul>
+                
+                <figure>
+                    <img src="https://via.placeholder.com/400x200?text=Figure+2" alt="Diagram of homology groups">
+                    <figcaption>Fig. 2: Visualizing homology groups</figcaption>
+                </figure>
+            </article>
+
+            <div class="theorem">
+    <div class="theorem-head">Theorem 2.3 (Fundamental Theorem of Calculus)</div>
+    <div class="theorem-content">
+        <p>If \(f\) is continuous on \([a,b]\) and \(F\) is an antiderivative...</p>
+    </div>
+    
+
+</div>
+
+            <section class="footnotes">
+                <h3>Footnotes</h3>
+                <ol>
+                    <li id="fn1">This proof uses the fact that \(\pi_1(S^1) \cong \mathbb{Z}\) and that a polynomial defines a continuous map from the Riemann sphere to itself. <a href="#fn1-ref" aria-label="Back to content">↩</a></li>
+                </ol>
+            </section>
+
+
+        </main>
+
+        <!-- Sidebar - Chapter Index -->
+        <aside>
+            <button class="sidebar-toggle">☰ Chapter Index</button>
+            <div class="sidebar-content">
+                <h3>Chapter Contents</h3>
+                <ul class="index-list">
+                    <li><a href="#fundamental-concepts">1. Fundamental Concepts</a>
+                        <ul>
+                            <li><a href="#homotopy-theory">1.1 Homotopy Theory</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#homology-groups">2. Homology Groups</a></li>
+                </ul>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <div class="thought">
+            <p>"In mathematics, you don't understand things. You just get used to them." — John von Neumann</p>
+        </div>
+        <div class="social-links">
+            <a href="mailto:sabbir@example.com">Email</a>
+            <a href="https://linkedin.com/in/sabbir" target="_blank">LinkedIn</a>
+            <a href="https://youtube.com/sabbir" target="_blank">YouTube</a>
+            <a href="https://x.com/sabbir" target="_blank">X</a>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
