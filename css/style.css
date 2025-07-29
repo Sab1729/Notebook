@@ -572,3 +572,9 @@ body {
 .nextbut a:hover {
     color: var(--link-hover-color);
 }
+
+pre{
+    font-family: inherit;
+    font-size: inherit;
+    
+}
