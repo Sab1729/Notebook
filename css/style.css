@@ -89,6 +89,7 @@ main {
     max-width: 70%;
 }
 
+
 aside {
     width: 30%;
     padding: 2rem;
@@ -559,4 +560,15 @@ body {
 
 .theorem:hover {
     background-color: rgba(0, 102, 204, 0.05);
+}
+
+.nextbut a {
+    text-decoration: none;
+    color: var(--link-color);
+    font-size: 1.1rem;
+    transition: color 0.2s;
+}
+
+.nextbut a:hover {
+    color: var(--link-hover-color);
 }
