@@ -47,12 +47,13 @@ header {
 
 .integral {
     font-size: 3rem;
-    margin-right: 0.5rem;
+    margin-right: -0.2rem;
+    color: rgb(66, 127, 126);
 }
 
 .title {
     font-size: 1.8rem;
-    font-weight: bold;
+    color: rgb(66, 127, 126);
 }
 
 nav ul {
@@ -339,8 +340,8 @@ footer {
 
 /* For the integral logo */
 .logo:hover .integral {
-    transform: rotate(180deg);
-    transition: transform 0.5s ease;
+    transform: rotate(360deg);
+    transition: transform 1s ease;
 }
 
 @media print {
@@ -354,7 +355,7 @@ footer {
         display: block;
     }
     
-    aside, .sidebar-toggle, #theme-toggle, footer {
+    aside, .sidebar-toggle, #theme-toggle,footer { /**/
         display: none;
     }
     
@@ -418,7 +419,7 @@ main, aside {
     gap: 1.5rem;
     align-items: flex-start;
     padding: 1.5rem;
-    border: 1px solid var(--border-color);
+    
     border-radius: 4px;
     transition: all 0.3s ease;
 }
@@ -427,7 +428,7 @@ main, aside {
     position: relative;
     min-width: 120px;
     height: 180px;
-    background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    background: linear-gradient(135deg, #6e1a01 0%, #2f0801 100%);
     border: 1px solid var(--border-color);
     padding: 1rem;
     display: flex;
@@ -435,10 +436,15 @@ main, aside {
     justify-content: center;
     text-align: center;
     box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    h3{
+      color: #f0e9d1; 
+    }
 }
 
 [data-theme="dark"] .book-cover {
-    background: linear-gradient(135deg, #222 0%, #444 100%);
+    background: inherit;
+    border-inline-end-color: rgb(253, 1, 135);
+    border-inline-start-color: #00d8fe;
 }
 
 .book-spine {
@@ -447,7 +453,12 @@ main, aside {
     top: 5%;
     height: 90%;
     width: 10px;
-    background: linear-gradient(to right, #d0d0d0 0%, #b0b0b0 100%);
+    background: linear-gradient(to right, #ff8e15 0%, #974e01 100%);
+}
+
+[data-theme="dark"] .book-spine {
+    background: inherit;
+    background: linear-gradient(to bottom, #09e5ed 0%, #850cb5 100%);
 }
 
 .book-details {
@@ -576,5 +587,5 @@ body {
 pre{
     font-family: inherit;
     font-size: inherit;
-    
+
 }
