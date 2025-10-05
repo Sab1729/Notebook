@@ -1,0 +1,2270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound Graphs</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        /* ... (all existing CSS remains the same) ... */
+         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #0d1126 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #ff8a00, #e52e71, #9c27b0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(255, 138, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            color: #b0b0d0;
+            font-weight: 300;
+        }
+        
+        .text-input-panel {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 0 auto 25px;
+            max-width: 1000px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .text-input-panel h3 {
+            margin-bottom: 15px;
+            color: #ff8a00;
+            font-size: 1.6rem;
+            text-align: center;
+        }
+        
+        .text-input-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .text-input-container input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .text-input-container button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .text-input-container button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .text-input-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .text-input-example {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .text-input-example:hover {
+            background: rgba(255, 138, 0, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .input-help {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #b0b0d0;
+            text-align: center;
+        }
+        
+        .input-help code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+        
+        .grid-container {
+            flex: 2;
+            min-width: 700px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .controls-container {
+            flex: 1;
+            min-width: 350px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .instructions-panel {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 0 auto 25px;
+            max-width: 1000px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .instructions-panel h3 {
+            margin-bottom: 15px;
+            color: #ff8a00;
+            font-size: 1.6rem;
+        }
+        
+        .instructions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .instruction-item {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 18px;
+            border-radius: 10px;
+            text-align: left;
+            border-left: 4px solid #ff8a00;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .instruction-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 138, 0, 0.2);
+        }
+        
+        .instruction-item strong {
+            color: #ff8a00;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 50px repeat(25, 1fr);
+            grid-template-rows: 50px repeat(25, 1fr);
+            width: 100%;
+            height: 650px;
+            border: 1px solid #333;
+            position: relative;
+            background: 
+                radial-gradient(circle at center, rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 4px 4px, 22px 22px, 22px 22px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .grid-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .grid-line {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .grid-line.vertical {
+            width: 1px;
+            height: 100%;
+        }
+        
+        .grid-line.horizontal {
+            height: 1px;
+            width: 100%;
+        }
+        
+        .grid-line.highlighted {
+            background: rgba(255, 138, 0, 0.8);
+            box-shadow: 0 0 12px rgba(255, 138, 0, 0.6);
+            z-index: 1;
+        }
+        
+        .grid-cell {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 2;
+        }
+        
+        .grid-cell:hover {
+            background: radial-gradient(circle at center, rgba(255, 138, 0, 0.2) 0%, transparent 70%);
+        }
+        
+        .grid-cell.highlight-preview {
+            background: radial-gradient(circle at center, rgba(255, 138, 0, 0.3) 0%, transparent 70%);
+            box-shadow: inset 0 0 15px rgba(255, 138, 0, 0.2);
+        }
+        
+        .grid-cell.selected {
+            background: radial-gradient(circle at center, rgba(255, 215, 0, 0.4) 0%, transparent 70%);
+            box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+        
+        .grid-cell.select-mode {
+            cursor: crosshair;
+        }
+        
+        .axis-label {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #a0a0c0;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            z-index: 3;
+            position: relative;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .axis-label.highlighted {
+            color: #ff8a00;
+            font-size: 1rem;
+            font-weight: 900;
+        }
+        
+        .axis-label.active {
+            background: linear-gradient(135deg, rgba(255, 138, 0, 0.4), rgba(229, 46, 113, 0.3));
+            color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 10px rgba(255, 138, 0, 0.4);
+            transform: scale(1.05);
+        }
+        
+        .axis-label.playing {
+            background: linear-gradient(135deg, rgba(255, 138, 0, 0.6), rgba(229, 46, 113, 0.5));
+            color: #fff;
+            border-radius: 6px;
+            box-shadow: 0 2px 15px rgba(255, 138, 0, 0.6);
+            transform: scale(1.1);
+        }
+        
+        .x-axis-label {
+            grid-row: 1;
+            align-items: end;
+            padding-bottom: 8px;
+        }
+        
+        .y-axis-label {
+            grid-column: 1;
+            justify-content: end;
+            padding-right: 8px;
+        }
+        
+        .connection {
+            position: absolute;
+            background: linear-gradient(90deg, rgba(0, 255, 255, 0.8), rgba(0, 200, 255, 0.6));
+            height: 3px;
+            transform-origin: 0 0;
+            z-index: 1;
+            pointer-events: none;
+            border-radius: 2px;
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+            transition: all 0.3s ease;
+        }
+        
+        .connection.playing {
+            background: linear-gradient(90deg, rgba(0, 255, 255, 1), rgba(0, 200, 255, 0.9));
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+            height: 5px;
+            z-index: 3;
+        }
+        
+        .node {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle at 30% 30%, #ffaa00, #ff8a00);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 4;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 138, 0, 0.8);
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+        }
+        
+        .node:hover {
+            background: radial-gradient(circle at 30% 30%, #ffcc00, #ffaa00);
+            transform: translate(-50%, -50%) scale(1.6);
+            box-shadow: 0 0 25px rgba(255, 170, 0, 1);
+        }
+        
+        .node.selected {
+            background: radial-gradient(circle at 30% 30%, #ff44aa, #e52e71);
+            box-shadow: 0 0 25px rgba(229, 46, 113, 1);
+            border: 2px solid rgba(255, 255, 255, 1);
+            animation: pulse 1.5s infinite;
+        }
+        
+        .node.playing {
+            background: radial-gradient(circle at 30% 30%, #ffcc00, #ff8a00);
+            box-shadow: 0 0 35px rgba(255, 200, 0, 1), 0 0 50px rgba(255, 150, 0, 0.7);
+            transform: translate(-50%, -50%) scale(1.8);
+            z-index: 10;
+            transition: all 0.2s ease;
+            border: 2px solid rgba(255, 255, 255, 1);
+            animation: pulse-glow 0.5s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1.3); }
+            50% { transform: translate(-50%, -50%) scale(1.5); }
+            100% { transform: translate(-50%, -50%) scale(1.3); }
+        }
+        
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 25px rgba(255, 200, 0, 1), 0 0 40px rgba(255, 150, 0, 0.7); }
+            100% { box-shadow: 0 0 35px rgba(255, 200, 0, 1), 0 0 60px rgba(255, 150, 0, 0.9); }
+        }
+        
+        .node-beat {
+            position: absolute;
+            top: -14px;
+            right: -14px;
+            background: linear-gradient(135deg, #e52e71, #9c27b0);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            z-index: 5;
+            box-shadow: 0 3px 10px rgba(229, 46, 113, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+        }
+        
+        .control-group {
+            margin-bottom: 18px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b0b0d0;
+            font-weight: 500;
+        }
+        
+        select, button, input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        select:hover, input:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        input {
+            cursor: text;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #ff8a00, #e52e71);
+            font-weight: bold;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(255, 138, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(255, 138, 0, 0.4);
+        }
+        
+        button:hover:before {
+            left: 100%;
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .selection-mode-controls {
+            background: linear-gradient(135deg, rgba(255, 138, 0, 0.15), rgba(229, 46, 113, 0.1));
+            border-radius: 12px;
+            padding: 18px;
+            margin: 18px 0;
+            border: 1px solid rgba(255, 138, 0, 0.3);
+        }
+        
+        .selection-mode-controls h4 {
+            color: #ff8a00;
+            margin-bottom: 12px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        .selection-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .selection-buttons button {
+            margin-top: 0;
+        }
+        
+        .selection-buttons button#deleteSelectedBtn {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+        }
+        
+        .selection-buttons button#rhythmSelectedBtn {
+            background: linear-gradient(135deg, #00c853, #009624);
+        }
+        
+        .sample-library {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sample-library h3 {
+            color: #ff8a00;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .sample-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .sample-buttons button {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            font-size: 0.9rem;
+            padding: 10px;
+        }
+        
+        .sample-info {
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-align: center;
+            color: #b0b0d0;
+        }
+        
+        .sequence-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 18px;
+            min-height: 150px;
+            margin-top: 20px;
+            overflow-y: auto;
+            max-height: 200px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sequence-item {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 14px;
+            margin: 6px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1rem;
+            position: relative;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sequence-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .sequence-item.current {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(0, 200, 255, 0.2));
+            color: white;
+            box-shadow: 0 3px 10px rgba(0, 255, 255, 0.3);
+        }
+        
+        .sequence-item.selected {
+            background: linear-gradient(135deg, rgba(229, 46, 113, 0.3), rgba(156, 39, 176, 0.2));
+            border: 1px solid rgba(229, 46, 113, 0.5);
+        }
+        
+        .sequence-item-beat {
+            font-size: 0.7rem;
+            color: #e52e71;
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(229, 46, 113, 0.5);
+        }
+        
+        .playback-controls {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .playback-controls button {
+            min-width: 150px;
+            padding: 14px;
+            font-size: 1.1rem;
+        }
+        
+        .status {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 500;
+        }
+        
+        .beat-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        
+        .beat-control label {
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+        
+        .beat-control input {
+            width: 80px;
+        }
+        
+        .rhythm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .rhythm-modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 30px;
+            border-radius: 15px;
+            width: 350px;
+            box-shadow: 0 10px 30px rgba(255, 138, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .rhythm-modal h3 {
+            margin-bottom: 20px;
+            color: #ff8a00;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+        
+        .rhythm-controls {
+            margin-bottom: 20px;
+        }
+        
+        .rhythm-control {
+            margin-bottom: 15px;
+        }
+        
+        .rhythm-control label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b0b0d0;
+        }
+        
+        .rhythm-slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .rhythm-value {
+            text-align: center;
+            font-weight: bold;
+            color: #ff8a00;
+            margin-top: 5px;
+        }
+        
+        .note-duration-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .note-duration-control {
+            text-align: center;
+        }
+        
+        .note-duration-control label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b0b0d0;
+        }
+        
+        .note-duration-control input {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .rhythm-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .rhythm-option {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .rhythm-option:hover {
+            background: rgba(255, 138, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .rhythm-option.selected {
+            background: rgba(255, 138, 0, 0.5);
+            border: 1px solid #ff8a00;
+            box-shadow: 0 3px 10px rgba(255, 138, 0, 0.3);
+        }
+        
+        @media (max-width: 1100px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .grid-container, .controls-container {
+                min-width: 100%;
+            }
+            
+            .playback-controls {
+                flex-direction: column;
+            }
+            
+            .playback-controls button {
+                width: 100%;
+            }
+            
+            .text-input-container {
+                flex-direction: column;
+            }
+            
+            .text-input-container input {
+                width: 100%;
+            }
+        }
+        .text-input-panel {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px auto 0;
+            max-width: 1000px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* ... (rest of CSS remains the same) ... */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sound Graphs</h1>
+            <p class="subtitle">Create beautiful musical sequences by connecting points on an interactive grid</p>
+        </header>
+        
+        <div class="instructions-panel">
+            <h3>How to Create Music with Sound Graphs</h3>
+            <div class="instructions-grid">
+                <div class="instruction-item">
+                    <strong>Select Points</strong>
+                    Click on any intersection in the grid to add a musical point. Each point plays both X and Y axis notes.
+                </div>
+                <div class="instruction-item">
+                    <strong>Create Sequences</strong>
+                    Connect multiple points to create flowing musical sequences. Notes play sequentially: A1, B1, A2, B2, ...
+                </div>
+                <div class="instruction-item">
+                    <strong>Fine-tune Rhythm</strong>
+                    Use selection mode to adjust individual note durations and create complex rhythmic patterns.
+                </div>
+                <div class="instruction-item">
+                    <strong>Experiment Freely</strong>
+                    Try different instruments and tempos to discover unique musical combinations.
+                </div>
+            </div>
+        </div>
+        
+        <div class="app-container">
+            <div class="grid-container">
+                <h2>Musical Grid</h2>
+                <div class="grid" id="noteGrid">
+                    <!-- Grid will be generated by JavaScript -->
+                    <div class="grid-lines" id="gridLines"></div>
+                </div>
+            </div>
+            
+            <div class="controls-container">
+                <h2>Controls</h2>
+                <div class="controls">
+                    
+                    
+                    <div class="control-group">
+                        <label for="instrument">Instrument</label>
+                        <select id="instrument">
+                            <option value="piano">Piano</option>
+                            <option value="synth">Synthesizer</option>
+                            <option value="guitar">Guitar</option>
+                            <option value="strings">Strings</option>
+                            <option value="organ">Organ</option>
+                            <option value="bells">Bells</option>
+                            <option value="bass">Bass</option>
+                            <option value="flute">Flute</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <div class="beat-control">
+                            <label for="defaultBeatDuration">Default Duration:</label>
+                            <input type="number" id="defaultBeatDuration" min="0.1" max="2" step="0.1" value="0.5">
+                            <span>seconds</span>
+                        </div>
+                    </div>
+                    
+                    <div class="selection-mode-controls">
+                        <h4>Selection Mode</h4>
+                        <div class="selection-buttons">
+                            <button id="toggleSelectModeBtn">Enable Selection</button>
+                            <button id="clearSelectionBtn">Clear Selection</button>
+                            <button id="deleteSelectedBtn" disabled>Delete Selected</button>
+                            <button id="rhythmSelectedBtn" disabled>Rhythm Selected</button>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button id="clearBtn">Clear All</button>
+                        <button id="removeLastBtn">Remove Last</button>
+                    </div>
+                    
+                    <button id="demoBtn">Load Demo</button>
+                </div>
+                
+                <div class="sample-library">
+                    <h3>Sample Library</h3>
+                    <div class="sample-buttons">
+                        <button id="sampleArpeggio">Arpeggio</button>
+                        <button id="sampleScale">Scale Run</button>
+                        <button id="sampleChord">Chord Progression</button>
+                        <button id="sampleRandom">Random Melody</button>
+                        <button id="sampleWaltz">Waltz Rhythm</button>
+                        <button id="sampleSyncopated">Syncopated</button>
+                        <button id="sampleComplexRhythm">Complex Rhythm</button>
+                        <button id="sampleOdeToJoy">Ode to Joy</button>
+                    </div>
+                    <div class="sample-info" id="sampleInfo">
+                        Click a sample to load it with its unique rhythm pattern
+                    </div>
+                </div>
+                
+                <h2>Sequence</h2>
+                <div class="sequence-display">
+                    <div id="sequenceList">
+                        <!-- Sequence will be displayed here -->
+                    </div>
+                </div>
+                
+                <div class="status" id="status">
+                    Click on the grid to add notes
+                </div>
+            </div>
+        </div>
+        
+        <div class="playback-controls">
+            <button id="playBtn">Play Sequence</button>
+            <button id="stopBtn" disabled>Stop</button>
+        </div>
+
+        <!-- MOVED TEXT INPUT PANEL TO BOTTOM -->
+        <div class="text-input-panel">
+            <h3>Create Sequence by Text</h3>
+            <div class="text-input-container">
+                <input type="text" id="noteSequenceInput" placeholder="Enter notes like: A4 C4 E4 G4 or A4-->C4-->E4-->G4">
+            </div>
+            <div class="text-input-container">
+                <button id="createFromTextBtn">Create Sequence</button>
+            </div>
+            <div class="input-help">
+                Format: <code>A4 C4 E4</code> or <code>A4-->C4-->E4</code> • Use # for sharps (C#4) • Separate with spaces or arrows
+            </div>
+            <div class="text-input-examples">
+                <div class="text-input-example" data-sequence="C4 E4 G4">C Major Arpeggio</div>
+                <div class="text-input-example" data-sequence="A4 B4 C5 D5 E5">A Minor Scale</div>
+                <div class="text-input-example" data-sequence="C4 G4 E4 G4">Simple Melody</div>
+                <div class="text-input-example" data-sequence="G4 B4 D5 G5">G Major Chord</div>
+                <div class="text-input-example" data-sequence="A4 C5 E5 A5">A Minor Arpeggio</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rhythm-modal" id="rhythmModal">
+        <div class="rhythm-modal-content">
+            <h3>Adjust Rhythm & Duration</h3>
+            
+            <div class="note-duration-controls">
+                <div class="note-duration-control">
+                    <label for="xNoteDuration">X Note Duration:</label>
+                    <input type="number" id="xNoteDuration" min="0.1" max="1" step="0.1" value="0.2">
+                    <div class="rhythm-value" id="xNoteValue">0.2s</div>
+                </div>
+                <div class="note-duration-control">
+                    <label for="yNoteDuration">Y Note Duration:</label>
+                    <input type="number" id="yNoteDuration" min="0.1" max="1" step="0.1" value="0.2">
+                    <div class="rhythm-value" id="yNoteValue">0.2s</div>
+                </div>
+            </div>
+            
+            <div class="rhythm-controls">
+                <div class="rhythm-control">
+                    <label for="beatDuration">Beat Duration:</label>
+                    <input type="range" id="beatDuration" class="rhythm-slider" min="0.1" max="2" step="0.1" value="0.5">
+                    <div class="rhythm-value" id="beatValue">0.5s</div>
+                </div>
+            </div>
+            
+            <div class="rhythm-options">
+                <div class="rhythm-option" data-value="0.25">♩ (1/4)</div>
+                <div class="rhythm-option" data-value="0.5">♪ (1/2)</div>
+                <div class="rhythm-option" data-value="1">♬ (1)</div>
+                <div class="rhythm-option" data-value="1.5">♬. (1.5)</div>
+                <div class="rhythm-option" data-value="0.75">♩. (3/4)</div>
+                <div class="rhythm-option" data-value="2">♩♩ (2)</div>
+            </div>
+            
+            <button id="applyRhythm">Apply Rhythm</button>
+            <button id="testRhythm" style="margin-top: 10px;">Test Rhythm</button>
+            <button id="cancelRhythm" style="margin-top: 10px; background: #666;">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // Generate note labels from A3 to A5
+        const notes = ['A3', 'A#3', 'B3', 'C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5'];
+        
+        // Store selected points and connections
+        let selectedPoints = [];
+        let connections = [];
+        let nodes = [];
+        let isPlaying = false;
+        let currentNoteIndex = 0;
+        let playbackTimeout;
+        let currentEditingNode = null;
+        let selectionMode = false;
+        let selectedNodes = new Set();
+        
+        // Tone.js setup with better sound quality
+        const synth = new Tone.PolySynth({
+            oscillator: {
+                type: "sine"
+            },
+            envelope: {
+                attack: 0.02,
+                decay: 0.1,
+                sustain: 0.3,
+                release: 0.5
+            }
+        }).toDestination();
+        
+        // Add effects for better sound
+        const reverb = new Tone.Reverb({
+            decay: 2,
+            wet: 0.1
+        }).toDestination();
+        
+        const filter = new Tone.Filter({
+            frequency: 1200,
+            type: "lowpass"
+        }).connect(reverb);
+        
+        synth.connect(filter);
+        synth.volume.value = -8;
+        
+        // ENHANCED SAMPLE LIBRARY WITH INDIVIDUAL POINT TIMING
+        const sampleLibrary = {
+            arpeggio: [
+                {x: 0, y: 4, beatDuration: 0.3, xNoteDuration: 0.15, yNoteDuration: 0.15},
+                {x: 4, y: 7, beatDuration: 0.3, xNoteDuration: 0.15, yNoteDuration: 0.15},
+                {x: 7, y: 11, beatDuration: 0.3, xNoteDuration: 0.15, yNoteDuration: 0.15},
+                {x: 11, y: 12, beatDuration: 0.3, xNoteDuration: 0.15, yNoteDuration: 0.15},
+                {x: 12, y: 15, beatDuration: 0.3, xNoteDuration: 0.15, yNoteDuration: 0.15},
+                {x: 15, y: 19, beatDuration: 0.3, xNoteDuration: 0.15, yNoteDuration: 0.15},
+                {x: 19, y: 22, beatDuration: 0.3, xNoteDuration: 0.15, yNoteDuration: 0.15},
+                {x: 22, y: 24, beatDuration: 0.3, xNoteDuration: 0.15, yNoteDuration: 0.15}
+            ],
+            scale: [
+                {x: 0, y: 1, beatDuration: 0.4, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 1, y: 2, beatDuration: 0.4, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 2, y: 3, beatDuration: 0.4, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 3, y: 4, beatDuration: 0.4, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 4, y: 5, beatDuration: 0.4, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 5, y: 6, beatDuration: 0.4, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 6, y: 7, beatDuration: 0.4, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 7, y: 8, beatDuration: 0.4, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 8, y: 9, beatDuration: 0.4, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 9, y: 10, beatDuration: 0.4, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 10, y: 11, beatDuration: 0.4, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 11, y: 12, beatDuration: 0.4, xNoteDuration: 0.2, yNoteDuration: 0.2}
+            ],
+            chord: [
+                {x: 0, y: 4, beatDuration: 0.8, xNoteDuration: 0.3, yNoteDuration: 0.3},
+                {x: 4, y: 7, beatDuration: 0.8, xNoteDuration: 0.3, yNoteDuration: 0.3},
+                {x: 7, y: 3, beatDuration: 0.6, xNoteDuration: 0.25, yNoteDuration: 0.25},
+                {x: 3, y: 5, beatDuration: 0.8, xNoteDuration: 0.3, yNoteDuration: 0.3},
+                {x: 5, y: 8, beatDuration: 0.8, xNoteDuration: 0.3, yNoteDuration: 0.3},
+                {x: 8, y: 12, beatDuration: 0.8, xNoteDuration: 0.3, yNoteDuration: 0.3},
+                {x: 12, y: 7, beatDuration: 0.6, xNoteDuration: 0.25, yNoteDuration: 0.25},
+                {x: 7, y: 11, beatDuration: 0.8, xNoteDuration: 0.3, yNoteDuration: 0.3},
+                {x: 11, y: 15, beatDuration: 1.0, xNoteDuration: 0.4, yNoteDuration: 0.4}
+            ],
+            random: [
+                {x: 2, y: 6, beatDuration: 0.5, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 8, y: 12, beatDuration: 0.5, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 5, y: 9, beatDuration: 0.5, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 11, y: 15, beatDuration: 0.5, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 7, y: 3, beatDuration: 0.5, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 14, y: 18, beatDuration: 0.5, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 9, y: 13, beatDuration: 0.5, xNoteDuration: 0.2, yNoteDuration: 0.2},
+                {x: 16, y: 20, beatDuration: 0.5, xNoteDuration: 0.2, yNoteDuration: 0.2}
+            ],
+            waltz: [
+                {x: 0, y: 4, beatDuration: 0.6, xNoteDuration: 0.25, yNoteDuration: 0.25},  // Strong beat
+                {x: 4, y: 0, beatDuration: 0.4, xNoteDuration: 0.15, yNoteDuration: 0.15},  // Weak beat
+                {x: 0, y: 7, beatDuration: 0.4, xNoteDuration: 0.15, yNoteDuration: 0.15},  // Weak beat
+                {x: 7, y: 4, beatDuration: 0.6, xNoteDuration: 0.25, yNoteDuration: 0.25},  // Strong beat
+                {x: 4, y: 7, beatDuration: 0.4, xNoteDuration: 0.15, yNoteDuration: 0.15},  // Weak beat
+                {x: 7, y: 11, beatDuration: 0.6, xNoteDuration: 0.25, yNoteDuration: 0.25}, // Strong beat
+                {x: 11, y: 7, beatDuration: 0.4, xNoteDuration: 0.15, yNoteDuration: 0.15}, // Weak beat
+                {x: 7, y: 11, beatDuration: 0.4, xNoteDuration: 0.15, yNoteDuration: 0.15}  // Weak beat
+            ],
+            syncopated: [
+                {x: 0, y: 5, beatDuration: 0.7, xNoteDuration: 0.15, yNoteDuration: 0.3},   // Off-beat start
+                {x: 5, y: 2, beatDuration: 0.5, xNoteDuration: 0.1, yNoteDuration: 0.25},   // Syncopated
+                {x: 2, y: 7, beatDuration: 0.7, xNoteDuration: 0.15, yNoteDuration: 0.3},   // Back to beat
+                {x: 7, y: 4, beatDuration: 0.5, xNoteDuration: 0.1, yNoteDuration: 0.25},   // Off-beat
+                {x: 4, y: 9, beatDuration: 0.7, xNoteDuration: 0.15, yNoteDuration: 0.3},   // Syncopated
+                {x: 9, y: 6, beatDuration: 0.5, xNoteDuration: 0.1, yNoteDuration: 0.25},   // Off-beat
+                {x: 6, y: 11, beatDuration: 0.7, xNoteDuration: 0.15, yNoteDuration: 0.3},  // Back to beat
+                {x: 11, y: 8, beatDuration: 0.5, xNoteDuration: 0.1, yNoteDuration: 0.25}   // Syncopated ending
+            ],
+            complexRhythm: [
+                {x: 0, y: 4, beatDuration: 0.8, xNoteDuration: 0.3, yNoteDuration: 0.3},
+                {x: 4, y: 7, beatDuration: 0.4, xNoteDuration: 0.15, yNoteDuration: 0.15},
+                {x: 7, y: 11, beatDuration: 0.6, xNoteDuration: 0.2, yNoteDuration: 0.25},
+                {x: 11, y: 8, beatDuration: 0.3, xNoteDuration: 0.1, yNoteDuration: 0.1},
+                {x: 8, y: 12, beatDuration: 0.7, xNoteDuration: 0.25, yNoteDuration: 0.3},
+                {x: 12, y: 9, beatDuration: 0.5, xNoteDuration: 0.15, yNoteDuration: 0.2},
+                {x: 9, y: 13, beatDuration: 0.9, xNoteDuration: 0.35, yNoteDuration: 0.4}
+            ],
+            odetojoy:[
+                {x: 7,  y: 7,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 8,  y: 10, beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 10, y: 8,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 7,  y: 5,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 3,  y: 3,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 5,  y: 7,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 7,  y: 5,  beatDuration: 0.8, xNoteDuration: 0.6, yNoteDuration: 0.2},
+                {x: 5,  y: 7,  beatDuration: 0.12, xNoteDuration: 0.8, yNoteDuration: 0.4},
+                //
+                {x: 7,  y: 8,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 10, y: 10, beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 8,  y: 7,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 5,  y: 3,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 3,  y: 5,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 7,  y: 5,  beatDuration: 1.0, xNoteDuration: 0.4, yNoteDuration: 0.6},
+                {x: 3,  y: 3,  beatDuration: 1.0, xNoteDuration: 0.2, yNoteDuration: 0.8},
+                //
+                {x: 5,  y: 5,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 7,  y: 3, beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 5,  y: 8,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 7,  y: 3,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 5,  y: 8,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 7,  y: 3,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 3,  y: 5,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 10,  y: 7,  beatDuration: 1.2, xNoteDuration: 0.8, yNoteDuration: 0.4},
+                //
+                {x: 7,  y: 8,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 10, y: 10, beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 8,  y: 7,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 5,  y: 3,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 3,  y: 5,  beatDuration: 0.8, xNoteDuration: 0.4, yNoteDuration: 0.4},
+                {x: 7,  y: 5,  beatDuration: 1.0, xNoteDuration: 0.4, yNoteDuration: 0.6},
+                {x: 3,  y: 3,  beatDuration: 1.0, xNoteDuration: 0.2, yNoteDuration: 0.8}
+                
+            ]
+        };
+
+        // Sample descriptions for the info panel
+        const sampleDescriptions = {
+            arpeggio: "Fast arpeggio with even rhythm",
+            scale: "Smooth scale run with consistent timing",
+            chord: "Chord progression with varied note lengths",
+            random: "Random melody with medium tempo",
+            waltz: "Waltz rhythm (3/4) with strong-weak-weak pattern",
+            syncopated: "Syncopated rhythm with off-beat accents",
+            complexRhythm: "Complex rhythm with varying note durations",
+            odetojoy: "Familiar melody with balanced rhythm"
+        };
+
+        // Initialize the grid
+        function initializeGrid() {
+            const grid = document.getElementById('noteGrid');
+            const gridLines = document.getElementById('gridLines');
+            
+            // Clear the grid
+            grid.innerHTML = '';
+            gridLines.innerHTML = '';
+            
+            // Create grid lines
+            const cellSize = 22; // pixels
+            const offset = 25; // pixels
+            
+            // Create vertical lines
+            for (let col = 0; col <= 25; col++) {
+                const line = document.createElement('div');
+                line.className = 'grid-line vertical';
+                line.style.left = `${offset + col * cellSize}px`;
+                gridLines.appendChild(line);
+            }
+            
+            // Create horizontal lines
+            for (let row = 0; row <= 25; row++) {
+                const line = document.createElement('div');
+                line.className = 'grid-line horizontal';
+                line.style.top = `${offset + row * cellSize}px`;
+                gridLines.appendChild(line);
+            }
+            
+            // Create axis labels and grid cells
+            for (let row = 0; row <= 25; row++) {
+                for (let col = 0; col <= 25; col++) {
+                    const cell = document.createElement('div');
+                    
+                    if (row === 0 && col === 0) {
+                        // Top-left corner (empty)
+                        cell.className = 'axis-label';
+                    } else if (row === 0) {
+                        // X-axis labels
+                        cell.className = `axis-label x-axis-label ${col % 3 === 1 ? 'highlighted' : ''}`;
+                        cell.textContent = notes[col - 1];
+                        cell.dataset.noteIndex = col - 1;
+                    } else if (col === 0) {
+                        // Y-axis labels
+                        cell.className = `axis-label y-axis-label ${row % 3 === 1 ? 'highlighted' : ''}`;
+                        cell.textContent = notes[row - 1];
+                        cell.dataset.noteIndex = row - 1;
+                    } else {
+                        // Grid cells
+                        cell.className = 'grid-cell';
+                        cell.dataset.x = col - 1;
+                        cell.dataset.y = row - 1;
+                        
+                        cell.addEventListener('mouseover', () => highlightAxes(col-1, row-1));
+                        cell.addEventListener('mouseout', () => clearHighlights());
+                        cell.addEventListener('click', () => selectCell(cell));
+                        
+                        // Add visual indicator for highlighted notes
+                        if ((col-1) % 3 === 0 && (row-1) % 3 === 0) {
+                            // Add subtle dot at intersection
+                            const dot = document.createElement('div');
+                            dot.style.position = 'absolute';
+                            dot.style.width = '6px';
+                            dot.style.height = '6px';
+                            dot.style.background = 'rgba(255, 138, 0, 0.5)';
+                            dot.style.borderRadius = '50%';
+                            dot.style.top = '50%';
+                            dot.style.left = '50%';
+                            dot.style.transform = 'translate(-50%, -50%)';
+                            cell.appendChild(dot);
+                        }
+                    }
+                    
+                    grid.appendChild(cell);
+                }
+            }
+        }
+        
+        // Highlight X and Y axes when hovering over a cell
+        function highlightAxes(x, y) {
+            clearHighlights();
+            
+            // Highlight X-axis label and cells
+            const xLabel = document.querySelector(`.x-axis-label[data-note-index="${x}"]`);
+            if (xLabel) xLabel.classList.add('active');
+            
+            // Highlight Y-axis label and cells
+            const yLabel = document.querySelector(`.y-axis-label[data-note-index="${y}"]`);
+            if (yLabel) yLabel.classList.add('active');
+            
+            // Highlight vertical grid line
+            const verticalLines = document.querySelectorAll('.grid-line.vertical');
+            if (verticalLines[x + 1]) {
+                verticalLines[x + 1].classList.add('highlighted');
+            }
+            
+            // Highlight horizontal grid line
+            const horizontalLines = document.querySelectorAll('.grid-line.horizontal');
+            if (horizontalLines[y + 1]) {
+                horizontalLines[y + 1].classList.add('highlighted');
+            }
+            
+            // Highlight the cell being hovered over
+            const hoveredCell = document.querySelector(`.grid-cell[data-x="${x}"][data-y="${y}"]`);
+            if (hoveredCell) {
+                hoveredCell.classList.add('highlight-preview');
+            }
+        }
+        
+        // Clear all axis highlights
+        function clearHighlights() {
+            document.querySelectorAll('.axis-label.active').forEach(label => {
+                label.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.grid-line.highlighted').forEach(line => {
+                line.classList.remove('highlighted');
+            });
+            
+            document.querySelectorAll('.grid-cell.highlight-preview').forEach(cell => {
+                cell.classList.remove('highlight-preview');
+            });
+        }
+        
+        // Handle cell selection
+        function selectCell(cell) {
+            const x = parseInt(cell.dataset.x);
+            const y = parseInt(cell.dataset.y);
+            
+            // Play both notes immediately for feedback
+            playNotePair(notes[x], notes[y]);
+            
+            // Add to selected points
+            selectedPoints.push({
+                x, 
+                y,
+                beatDuration: parseFloat(document.getElementById('defaultBeatDuration').value),
+                xNoteDuration: 0.2, // Default X note duration
+                yNoteDuration: 0.2, // Default Y note duration
+                rhythm: 'normal' // default rhythm
+            });
+            
+            // Create a visual node
+            createNode(x, y);
+            
+            // If we have at least two points, create a connection
+            if (selectedPoints.length >= 2) {
+                const prevPoint = selectedPoints[selectedPoints.length - 2];
+                const currentPoint = selectedPoints[selectedPoints.length - 1];
+                
+                createConnection(prevPoint, currentPoint);
+            }
+            
+            // Update sequence display
+            updateSequenceDisplay();
+            updateStatus(`Added point: ${notes[x]} → ${notes[y]} (${getDefaultBeatDuration()}s)`);
+        }
+        
+        // NEW: Text input functionality - FIXED
+        function createSequenceFromText() {
+            const input = document.getElementById('noteSequenceInput').value.trim();
+            if (!input) {
+                updateStatus('Please enter a sequence of notes');
+                return;
+            }
+            
+            // Parse the input to extract notes
+            const noteSequence = parseNoteSequence(input);
+            if (noteSequence.length === 0) {
+                updateStatus('Invalid note sequence. Use format like: A4 C4 E4 G4');
+                return;
+            }
+            
+            // Clear existing sequence
+            clearAll();
+            
+            // Create nodes from the note sequence
+            createNodesFromNoteSequence(noteSequence);
+            
+            updateStatus(`Created sequence from text: ${noteSequence.join(' ')}`);
+        }
+        
+        // Parse text input into an array of valid notes - FIXED
+        function parseNoteSequence(input) {
+            // Normalize the input - replace arrows with spaces and trim
+            const normalized = input.replace(/-->/g, ' ').replace(/\s+/g, ' ').trim();
+            
+            // Split into individual note strings
+            const noteStrings = normalized.split(' ');
+            
+            // Validate and convert to proper note format
+            const validNotes = [];
+            
+            for (const noteStr of noteStrings) {
+                const note = validateAndFormatNote(noteStr);
+                if (note) {
+                    validNotes.push(note);
+                } else {
+                    console.warn(`Invalid note: ${noteStr}`);
+                }
+            }
+            
+            return validNotes;
+        }
+        
+        // Validate and format a single note string - FIXED
+        function validateAndFormatNote(noteStr) {
+            // Remove any extra whitespace
+            noteStr = noteStr.trim().toUpperCase();
+            
+            // Handle sharp notes (convert # to proper format)
+            if (noteStr.includes('#')) {
+                // Format should be like C#4
+                const match = noteStr.match(/^([A-G])#(\d)$/);
+                if (match) {
+                    const formattedNote = `${match[1]}#${match[2]}`;
+                    // Check if this note exists in our notes array
+                    if (notes.includes(formattedNote)) {
+                        return formattedNote;
+                    }
+                }
+            } else {
+                // Regular note without sharp
+                const match = noteStr.match(/^([A-G])(\d)$/);
+                if (match) {
+                    const formattedNote = `${match[1]}${match[2]}`;
+                    // Check if this note exists in our notes array
+                    if (notes.includes(formattedNote)) {
+                        return formattedNote;
+                    }
+                }
+            }
+            
+            return null;
+        }
+        
+        // Create nodes from a sequence of notes
+        function createNodesFromNoteSequence(noteSequence) {
+            if (noteSequence.length === 0) return;
+            
+            // For odd number of notes, duplicate the last note to make pairs
+            const workingSequence = [...noteSequence];
+            if (workingSequence.length % 2 !== 0) {
+                workingSequence.push(workingSequence[workingSequence.length - 1]);
+            }
+            
+            // Create node pairs
+            for (let i = 0; i < workingSequence.length; i += 2) {
+                const note1 = workingSequence[i];
+                const note2 = workingSequence[i + 1];
+                
+                // Find the indices of these notes in our notes array
+                const xIndex = notes.indexOf(note1);
+                const yIndex = notes.indexOf(note2);
+                
+                if (xIndex !== -1 && yIndex !== -1) {
+                    // Create the point
+                    const point = {
+                        x: xIndex,
+                        y: yIndex,
+                        beatDuration: parseFloat(document.getElementById('defaultBeatDuration').value),
+                        xNoteDuration: 0.2,
+                        yNoteDuration: 0.2,
+                        rhythm: 'text-input'
+                    };
+                    
+                    selectedPoints.push(point);
+                    
+                    // Create visual node
+                    createNode(xIndex, yIndex);
+                    
+                    // Create connection if we have previous point
+                    if (selectedPoints.length >= 2) {
+                        const prevPoint = selectedPoints[selectedPoints.length - 2];
+                        createConnection(prevPoint, point);
+                    }
+                }
+            }
+            
+            updateSequenceDisplay();
+        }
+        
+        // Load example sequence from text input examples
+        function loadTextInputExample(sequence) {
+            document.getElementById('noteSequenceInput').value = sequence;
+            createSequenceFromText();
+        }
+        
+        // Load a sample from the library with individual point timing
+        function loadSample(sampleName) {
+            clearAll();
+            
+            const sample = sampleLibrary[sampleName];
+            if (!sample) {
+                updateStatus('Sample not found');
+                return;
+            }
+            
+            // Update sample info
+            document.getElementById('sampleInfo').textContent = sampleDescriptions[sampleName] || "Loaded sample with individual point timing";
+            
+            // Select the sample points with their individual timing
+            sample.forEach(point => {
+                const cell = document.querySelector(`.grid-cell[data-x="${point.x}"][data-y="${point.y}"]`);
+                if (cell) {
+                    // Add point with individual timing settings
+                    const x = parseInt(cell.dataset.x);
+                    const y = parseInt(cell.dataset.y);
+                    
+                    // Play both notes immediately for feedback
+                    playNotePair(notes[x], notes[y]);
+                    
+                    // Add to selected points with individual timing
+                    selectedPoints.push({
+                        x, 
+                        y,
+                        beatDuration: point.beatDuration,
+                        xNoteDuration: point.xNoteDuration,
+                        yNoteDuration: point.yNoteDuration,
+                        rhythm: sampleName
+                    });
+                    
+                    // Create a visual node
+                    createNode(x, y);
+                    
+                    // If we have at least two points, create a connection
+                    if (selectedPoints.length >= 2) {
+                        const prevPoint = selectedPoints[selectedPoints.length - 2];
+                        const currentPoint = selectedPoints[selectedPoints.length - 1];
+                        
+                        createConnection(prevPoint, currentPoint);
+                    }
+                }
+            });
+            
+            updateSequenceDisplay();
+            updateStatus(`Loaded ${sampleName} sample with individual point timing`);
+        }
+        
+        // Toggle selection mode
+        function toggleSelectionMode() {
+            selectionMode = !selectionMode;
+            const toggleBtn = document.getElementById('toggleSelectModeBtn');
+            const gridCells = document.querySelectorAll('.grid-cell');
+            const nodeElements = document.querySelectorAll('.node');
+            
+            if (selectionMode) {
+                toggleBtn.textContent = 'Disable Selection';
+                toggleBtn.style.background = 'linear-gradient(135deg, #00c853, #009624)';
+                gridCells.forEach(cell => cell.classList.add('select-mode'));
+                nodeElements.forEach(node => {
+                    node.style.cursor = 'pointer';
+                    node.addEventListener('click', handleNodeSelection);
+                });
+                updateStatus('Selection mode enabled - click nodes to select them');
+            } else {
+                toggleBtn.textContent = 'Enable Selection';
+                toggleBtn.style.background = 'linear-gradient(135deg, #ff8a00, #e52e71)';
+                gridCells.forEach(cell => cell.classList.remove('select-mode'));
+                nodeElements.forEach(node => {
+                    node.removeEventListener('click', handleNodeSelection);
+                });
+                clearNodeSelection();
+                updateStatus('Selection mode disabled');
+            }
+            
+            updateSelectionButtons();
+        }
+        
+        // Handle node selection in selection mode
+        function handleNodeSelection(e) {
+            e.stopPropagation();
+            if (!selectionMode) return;
+            
+            const node = e.currentTarget;
+            const index = parseInt(node.dataset.index);
+            
+            if (selectedNodes.has(index)) {
+                selectedNodes.delete(index);
+                node.classList.remove('selected');
+            } else {
+                selectedNodes.add(index);
+                node.classList.add('selected');
+            }
+            
+            updateSelectionButtons();
+            updateSequenceDisplay();
+            updateStatus(`Selected ${selectedNodes.size} node(s)`);
+        }
+        
+        // Clear all node selections
+        function clearNodeSelection() {
+            selectedNodes.clear();
+            document.querySelectorAll('.node.selected').forEach(node => {
+                node.classList.remove('selected');
+            });
+            updateSelectionButtons();
+            updateSequenceDisplay();
+        }
+        
+        // Delete selected nodes
+        function deleteSelectedNodes() {
+            if (selectedNodes.size === 0) return;
+            
+            // Convert to array and sort in reverse to avoid index issues
+            const indicesToRemove = Array.from(selectedNodes).sort((a, b) => b - a);
+            
+            indicesToRemove.forEach(index => {
+                // Remove the node element
+                const node = nodes[index].element;
+                if (node) node.remove();
+                
+                // Remove from selectedPoints and nodes arrays
+                selectedPoints.splice(index, 1);
+                nodes.splice(index, 1);
+            });
+            
+            // Rebuild all connections and nodes
+            rebuildConnectionsAndNodes();
+            
+            // Update sequence display
+            updateSequenceDisplay();
+            
+            // Clear selection
+            clearNodeSelection();
+            
+            updateStatus(`Deleted ${indicesToRemove.length} node(s)`);
+        }
+        
+        // Open rhythm editor for selected nodes
+        function openRhythmForSelected() {
+            if (selectedNodes.size === 0) return;
+            
+            currentEditingNode = Array.from(selectedNodes);
+            const modal = document.getElementById('rhythmModal');
+            modal.style.display = 'flex';
+            
+            // Set current values for the first selected node
+            if (currentEditingNode.length > 0) {
+                const firstNode = selectedPoints[currentEditingNode[0]];
+                document.getElementById('beatDuration').value = firstNode.beatDuration;
+                document.getElementById('beatValue').textContent = firstNode.beatDuration.toFixed(1) + 's';
+                document.getElementById('xNoteDuration').value = firstNode.xNoteDuration;
+                document.getElementById('xNoteValue').textContent = firstNode.xNoteDuration.toFixed(1) + 's';
+                document.getElementById('yNoteDuration').value = firstNode.yNoteDuration;
+                document.getElementById('yNoteValue').textContent = firstNode.yNoteDuration.toFixed(1) + 's';
+            }
+            
+            // Clear previous selections
+            document.querySelectorAll('.rhythm-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+        }
+        
+        // Update selection button states
+        function updateSelectionButtons() {
+            const hasSelection = selectedNodes.size > 0;
+            document.getElementById('deleteSelectedBtn').disabled = !hasSelection;
+            document.getElementById('rhythmSelectedBtn').disabled = !hasSelection;
+        }
+        
+        // Get the default beat duration
+        function getDefaultBeatDuration() {
+            return parseFloat(document.getElementById('defaultBeatDuration').value);
+        }
+        
+        // Create a visual node
+        function createNode(x, y) {
+            const grid = document.getElementById('noteGrid');
+            
+            // Calculate position
+            const posX = (x + 1) * 22 + 25; // 22px per cell + 25px offset
+            const posY = (y + 1) * 22 + 25;
+            
+            // Create node element
+            const node = document.createElement('div');
+            node.className = 'node';
+            node.style.left = `${posX}px`;
+            node.style.top = `${posY}px`;
+            node.dataset.x = x;
+            node.dataset.y = y;
+            node.dataset.index = nodes.length;
+            
+            // Add beat duration indicator
+            const beatIndicator = document.createElement('div');
+            beatIndicator.className = 'node-beat';
+            const point = selectedPoints[selectedPoints.length - 1];
+            beatIndicator.textContent = point.beatDuration.toFixed(1);
+            node.appendChild(beatIndicator);
+            
+            // Add click event for selection mode
+            node.addEventListener('click', handleNodeSelection);
+            
+            grid.appendChild(node);
+            
+            // Store node data
+            nodes.push({
+                element: node,
+                x: x,
+                y: y
+            });
+        }
+        
+        // Apply rhythm to the current node(s)
+        function applyRhythm() {
+            if (!currentEditingNode) return;
+            
+            const beatValue = parseFloat(document.getElementById('beatDuration').value);
+            const xNoteValue = parseFloat(document.getElementById('xNoteDuration').value);
+            const yNoteValue = parseFloat(document.getElementById('yNoteDuration').value);
+            
+            // Handle multiple nodes if array
+            if (Array.isArray(currentEditingNode)) {
+                currentEditingNode.forEach(nodeIndex => {
+                    // Update the node's durations
+                    selectedPoints[nodeIndex].beatDuration = beatValue;
+                    selectedPoints[nodeIndex].xNoteDuration = xNoteValue;
+                    selectedPoints[nodeIndex].yNoteDuration = yNoteValue;
+                    
+                    // Update the node's visual indicator
+                    const node = nodes[nodeIndex].element;
+                    const beatIndicator = node.querySelector('.node-beat');
+                    if (beatIndicator) {
+                        beatIndicator.textContent = beatValue.toFixed(1);
+                    }
+                });
+                
+                updateStatus(`Updated rhythm for ${currentEditingNode.length} node(s)`);
+            } else {
+                // Single node (legacy support)
+                const nodeIndex = parseInt(currentEditingNode.dataset.index);
+                
+                // Update the node's durations
+                selectedPoints[nodeIndex].beatDuration = beatValue;
+                selectedPoints[nodeIndex].xNoteDuration = xNoteValue;
+                selectedPoints[nodeIndex].yNoteDuration = yNoteValue;
+                
+                // Update the node's visual indicator
+                const beatIndicator = currentEditingNode.querySelector('.node-beat');
+                if (beatIndicator) {
+                    beatIndicator.textContent = beatValue.toFixed(1);
+                }
+                
+                updateStatus(`Updated rhythm for ${notes[selectedPoints[nodeIndex].x]}→${notes[selectedPoints[nodeIndex].y]}`);
+            }
+            
+            // Update sequence display
+            updateSequenceDisplay();
+            
+            // Close the modal
+            closeRhythmModal();
+        }
+        
+        // Test the current rhythm settings
+        function testRhythm() {
+            const xNoteValue = parseFloat(document.getElementById('xNoteDuration').value);
+            const yNoteValue = parseFloat(document.getElementById('yNoteDuration').value);
+            
+            // Play a test sequence with current settings
+            playNotePairWithDuration('C4', 'E4', xNoteValue, yNoteValue);
+        }
+        
+        // Play a note pair with specific durations
+        function playNotePairWithDuration(note1, note2, duration1, duration2) {
+            playNoteWithDuration(note1, duration1);
+            setTimeout(() => playNoteWithDuration(note2, duration2), duration1 * 1000);
+        }
+        
+        // Play a single note with specific duration
+        function playNoteWithDuration(note, duration) {
+            try {
+                synth.triggerAttackRelease(note, duration);
+            } catch (error) {
+                console.error('Error playing note:', error);
+            }
+        }
+        
+        // Close rhythm modal
+        function closeRhythmModal() {
+            document.getElementById('rhythmModal').style.display = 'none';
+            currentEditingNode = null;
+        }
+        
+        // Create a visual connection between two points
+        function createConnection(from, to) {
+            const grid = document.getElementById('noteGrid');
+            
+            // Calculate positions
+            const fromX = (from.x + 1) * 22 + 25; // 22px per cell + 25px offset
+            const fromY = (from.y + 1) * 22 + 25;
+            const toX = (to.x + 1) * 22 + 25;
+            const toY = (to.y + 1) * 22 + 25;
+            
+            // Calculate distance and angle
+            const dx = toX - fromX;
+            const dy = toY - fromY;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            
+            // Create connection element
+            const connection = document.createElement('div');
+            connection.className = 'connection';
+            connection.style.width = `${length}px`;
+            connection.style.left = `${fromX}px`;
+            connection.style.top = `${fromY}px`;
+            connection.style.transform = `rotate(${angle}deg)`;
+            
+            grid.appendChild(connection);
+            
+            // Store connection data
+            connections.push({
+                element: connection,
+                from: from,
+                to: to
+            });
+        }
+        
+        // Remove the last node
+        function removeLastNode() {
+            if (nodes.length === 0) return;
+            
+            const lastNode = nodes[nodes.length - 1];
+            const point = selectedPoints[selectedPoints.length - 1];
+            
+            // Remove the node element
+            lastNode.element.remove();
+            
+            // Remove from selectedPoints and nodes arrays
+            selectedPoints.pop();
+            nodes.pop();
+            
+            // Rebuild all connections and nodes
+            rebuildConnectionsAndNodes();
+            
+            // Update sequence display
+            updateSequenceDisplay();
+            
+            updateStatus(`Removed last point: ${notes[point.x]} → ${notes[point.y]}`);
+        }
+        
+        // Rebuild all connections and nodes after removal
+        function rebuildConnectionsAndNodes() {
+            // Clear all connections
+            connections.forEach(conn => conn.element.remove());
+            connections = [];
+            
+            // Clear all nodes
+            nodes.forEach(node => node.element.remove());
+            nodes = [];
+            
+            // Recreate nodes
+            selectedPoints.forEach((point, index) => {
+                createNode(point.x, point.y);
+                
+                // Recreate connections
+                if (index > 0) {
+                    const prevPoint = selectedPoints[index - 1];
+                    createConnection(prevPoint, point);
+                }
+            });
+        }
+        
+        // Update the sequence display
+        function updateSequenceDisplay() {
+            const sequenceList = document.getElementById('sequenceList');
+            sequenceList.innerHTML = '';
+            
+            if (selectedPoints.length === 0) {
+                sequenceList.innerHTML = '<p>No notes selected. Click on the grid to create a sequence.</p>';
+                return;
+            }
+            
+            // Add all points with both X and Y notes
+            selectedPoints.forEach((point, index) => {
+                const notePair = document.createElement('span');
+                notePair.className = 'sequence-item';
+                if (selectedNodes.has(index)) {
+                    notePair.classList.add('selected');
+                }
+                notePair.textContent = `${notes[point.x]}→${notes[point.y]}`;
+                
+                // Add beat duration indicator
+                const beatIndicator = document.createElement('span');
+                beatIndicator.className = 'sequence-item-beat';
+                beatIndicator.textContent = point.beatDuration.toFixed(1);
+                notePair.appendChild(beatIndicator);
+                
+                // Add tooltip with detailed info
+                notePair.title = `Duration: ${point.beatDuration}s | X: ${point.xNoteDuration}s | Y: ${point.yNoteDuration}s`;
+                
+                sequenceList.appendChild(notePair);
+            });
+        }
+        
+        // Play the note sequence - NOW SEQUENTIAL!
+        function playSequence() {
+            if (selectedPoints.length === 0) {
+                updateStatus('Please select at least one point on the grid.');
+                return;
+            }
+            
+            if (isPlaying) {
+                return; // Already playing
+            }
+            
+            isPlaying = true;
+            currentNoteIndex = 0;
+            const playBtn = document.getElementById('playBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            playBtn.disabled = true;
+            stopBtn.disabled = false;
+            
+            updateStatus('Playing sequence...');
+            
+            // Create a flat array of all notes to play sequentially
+            const allNotes = [];
+            selectedPoints.forEach(point => {
+                allNotes.push({
+                    note: notes[point.x],
+                    duration: point.xNoteDuration,
+                    pointIndex: selectedPoints.indexOf(point),
+                    isXNote: true
+                });
+                allNotes.push({
+                    note: notes[point.y],
+                    duration: point.yNoteDuration,
+                    pointIndex: selectedPoints.indexOf(point),
+                    isXNote: false
+                });
+            });
+            
+            // Play the first note
+            playSequentialNote(allNotes, 0);
+        }
+        
+        // Play notes sequentially with visual feedback
+        function playSequentialNote(allNotes, index) {
+            if (!isPlaying || index >= allNotes.length) {
+                // Sequence finished
+                stopPlayback();
+                return;
+            }
+            
+            const noteData = allNotes[index];
+            
+            // Highlight the current note in sequence display
+            highlightCurrentNote(noteData.pointIndex);
+            
+            // Highlight the corresponding node and axis labels
+            highlightPlayingNode(noteData.pointIndex, noteData.isXNote);
+            
+            // Play the note
+            playNoteWithDuration(noteData.note, noteData.duration);
+            
+            // Move to next note after duration
+            const nextIndex = index + 1;
+            const noteDuration = noteData.duration * 1000; // Convert to milliseconds
+            playbackTimeout = setTimeout(() => {
+                // Remove highlight from current node before moving to next
+                removePlayingNodeHighlight(noteData.pointIndex, noteData.isXNote);
+                playSequentialNote(allNotes, nextIndex);
+            }, noteDuration);
+        }
+        
+        // Highlight the node and axis labels when playing
+        function highlightPlayingNode(pointIndex, isXNote) {
+            if (pointIndex < 0 || pointIndex >= nodes.length) return;
+            
+            const point = selectedPoints[pointIndex];
+            const node = nodes[pointIndex].element;
+            
+            // Highlight the node
+            node.classList.add('playing');
+            
+            // Highlight the corresponding axis labels
+            const xLabel = document.querySelector(`.x-axis-label[data-note-index="${point.x}"]`);
+            const yLabel = document.querySelector(`.y-axis-label[data-note-index="${point.y}"]`);
+            
+            if (xLabel) xLabel.classList.add('playing');
+            if (yLabel) yLabel.classList.add('playing');
+            
+            // Highlight the connection if applicable
+            if (pointIndex > 0) {
+                const connection = connections[pointIndex - 1];
+                if (connection) {
+                    connection.element.classList.add('playing');
+                }
+            }
+        }
+        
+        // Remove highlight from node and axis labels
+        function removePlayingNodeHighlight(pointIndex, isXNote) {
+            if (pointIndex < 0 || pointIndex >= nodes.length) return;
+            
+            const point = selectedPoints[pointIndex];
+            const node = nodes[pointIndex].element;
+            
+            // Remove highlight from the node
+            node.classList.remove('playing');
+            
+            // Remove highlight from axis labels
+            const xLabel = document.querySelector(`.x-axis-label[data-note-index="${point.x}"]`);
+            const yLabel = document.querySelector(`.y-axis-label[data-note-index="${point.y}"]`);
+            
+            if (xLabel) xLabel.classList.remove('playing');
+            if (yLabel) yLabel.classList.remove('playing');
+            
+            // Remove highlight from connection
+            if (pointIndex > 0) {
+                const connection = connections[pointIndex - 1];
+                if (connection) {
+                    connection.element.classList.remove('playing');
+                }
+            }
+        }
+        
+        // Stop playback - updated to remove all visual highlights
+        function stopPlayback() {
+            isPlaying = false;
+            clearTimeout(playbackTimeout);
+            
+            // Remove all playing highlights
+            document.querySelectorAll('.node.playing').forEach(node => {
+                node.classList.remove('playing');
+            });
+            
+            document.querySelectorAll('.axis-label.playing').forEach(label => {
+                label.classList.remove('playing');
+            });
+            
+            document.querySelectorAll('.connection.playing').forEach(conn => {
+                conn.classList.remove('playing');
+            });
+            
+            const playBtn = document.getElementById('playBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            playBtn.disabled = false;
+            stopBtn.disabled = true;
+            
+            updateStatus('Playback stopped');
+            highlightCurrentNote(-1); // Remove highlighting
+        }
+        
+        // Highlight the current note in the sequence display
+        function highlightCurrentNote(index) {
+            const sequenceItems = document.querySelectorAll('.sequence-item');
+            
+            sequenceItems.forEach((item, i) => {
+                if (i === index) {
+                    item.classList.add('current');
+                } else {
+                    item.classList.remove('current');
+                }
+            });
+        }
+        
+        // Play a pair of notes (for initial selection)
+        function playNotePair(note1, note2) {
+            playNoteWithDuration(note1, 0.2);
+            setTimeout(() => playNoteWithDuration(note2, 0.2), 200);
+        }
+        
+        // Play a single note using Tone.js
+        function playNoteWithDuration(note, duration) {
+            try {
+                synth.triggerAttackRelease(note, duration);
+            } catch (error) {
+                console.error('Error playing note:', error);
+            }
+        }
+        
+        // Clear all selections and connections
+        function clearAll() {
+            selectedPoints = [];
+            connections = [];
+            nodes = [];
+            selectedNodes.clear();
+            
+            // Remove visual elements
+            document.querySelectorAll('.grid-cell.selected').forEach(cell => {
+                cell.classList.remove('selected');
+            });
+            
+            document.querySelectorAll('.connection').forEach(conn => {
+                conn.remove();
+            });
+            
+            document.querySelectorAll('.node').forEach(node => {
+                node.remove();
+            });
+            
+            // Reset sequence display
+            updateSequenceDisplay();
+            
+            // Stop playback if playing
+            stopPlayback();
+            
+            updateStatus('All notes cleared');
+        }
+        
+        // Update status message
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+        
+        // Create a demo sequence
+        function createDemoSequence() {
+            clearAll();
+            
+            // Define demo points (indices in the notes array)
+            const demoPoints = [
+                {x: 0, y: 4},   // A3 -> C4
+                {x: 4, y: 7},   // C4 -> E4
+                {x: 7, y: 11},  // E4 -> G4
+                {x: 11, y: 12}, // G4 -> A4
+                {x: 12, y: 11}, // A4 -> G4
+                {x: 11, y: 7},  // G4 -> E4
+                {x: 7, y: 4},   // E4 -> C4
+                {x: 4, y: 0},   // C4 -> A3
+            ];
+            
+            // Select the demo points
+            demoPoints.forEach(point => {
+                const cell = document.querySelector(`.grid-cell[data-x="${point.x}"][data-y="${point.y}"]`);
+                if (cell) {
+                    // Set default beat duration for demo
+                    document.getElementById('defaultBeatDuration').value = 0.5;
+                    selectCell(cell);
+                }
+            });
+            
+            updateStatus('Demo sequence loaded');
+        }
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeGrid();
+            
+            // Set up event listeners for text input
+            document.getElementById('createFromTextBtn').addEventListener('click', createSequenceFromText);
+            
+            // Allow Enter key to create sequence
+            document.getElementById('noteSequenceInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    createSequenceFromText();
+                }
+            });
+            
+            // Set up example click handlers
+            document.querySelectorAll('.text-input-example').forEach(example => {
+                example.addEventListener('click', function() {
+                    loadTextInputExample(this.dataset.sequence);
+                });
+            });
+            
+            // Set up event listeners
+            document.getElementById('playBtn').addEventListener('click', playSequence);
+            document.getElementById('stopBtn').addEventListener('click', stopPlayback);
+            document.getElementById('clearBtn').addEventListener('click', clearAll);
+            document.getElementById('removeLastBtn').addEventListener('click', removeLastNode);
+            document.getElementById('demoBtn').addEventListener('click', createDemoSequence);
+            document.getElementById('applyRhythm').addEventListener('click', applyRhythm);
+            document.getElementById('testRhythm').addEventListener('click', testRhythm);
+            document.getElementById('cancelRhythm').addEventListener('click', closeRhythmModal);
+            document.getElementById('toggleSelectModeBtn').addEventListener('click', toggleSelectionMode);
+            document.getElementById('clearSelectionBtn').addEventListener('click', clearNodeSelection);
+            document.getElementById('deleteSelectedBtn').addEventListener('click', deleteSelectedNodes);
+            document.getElementById('rhythmSelectedBtn').addEventListener('click', openRhythmForSelected);
+            
+            // Sample library buttons
+            document.getElementById('sampleArpeggio').addEventListener('click', () => loadSample('arpeggio'));
+            document.getElementById('sampleScale').addEventListener('click', () => loadSample('scale'));
+            document.getElementById('sampleChord').addEventListener('click', () => loadSample('chord'));
+            document.getElementById('sampleRandom').addEventListener('click', () => loadSample('random'));
+            document.getElementById('sampleWaltz').addEventListener('click', () => loadSample('waltz'));
+            document.getElementById('sampleSyncopated').addEventListener('click', () => loadSample('syncopated'));
+            document.getElementById('sampleComplexRhythm').addEventListener('click', () => loadSample('complexRhythm'));
+            document.getElementById('sampleOdeToJoy').addEventListener('click', () => loadSample('odetojoy'));
+            
+            // Rhythm slider updates
+            document.getElementById('beatDuration').addEventListener('input', function() {
+                document.getElementById('beatValue').textContent = this.value + 's';
+            });
+            
+            document.getElementById('xNoteDuration').addEventListener('input', function() {
+                document.getElementById('xNoteValue').textContent = this.value + 's';
+            });
+            
+            document.getElementById('yNoteDuration').addEventListener('input', function() {
+                document.getElementById('yNoteValue').textContent = this.value + 's';
+            });
+            
+            // Rhythm option selection
+            document.querySelectorAll('.rhythm-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.rhythm-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    document.getElementById('beatDuration').value = this.dataset.value;
+                    document.getElementById('beatValue').textContent = this.dataset.value + 's';
+                });
+            });
+            
+            // Close modal when clicking outside
+            document.getElementById('rhythmModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeRhythmModal();
+                }
+            });
+            
+            // Update default beat duration on input change
+            document.getElementById('defaultBeatDuration').addEventListener('change', function() {
+                // Update all existing nodes with new default beat duration
+                nodes.forEach((node, index) => {
+                    if (node.element.querySelector('.node-beat')) {
+                        node.element.querySelector('.node-beat').textContent = this.value;
+                    }
+                    if (selectedPoints[index]) {
+                        selectedPoints[index].beatDuration = parseFloat(this.value);
+                    }
+                });
+                updateSequenceDisplay();
+            });
+            
+            // Instrument selection
+            document.getElementById('instrument').addEventListener('change', function() {
+                // Update synth settings based on instrument
+                switch(this.value) {
+                    case 'piano':
+                        synth.set({
+                            oscillator: { type: "sine" },
+                            envelope: { attack: 0.02, decay: 0.1, sustain: 0.3, release: 0.5 }
+                        });
+                        break;
+                    case 'synth':
+                        synth.set({
+                            oscillator: { type: "sawtooth" },
+                            envelope: { attack: 0.1, decay: 0.3, sustain: 0.4, release: 0.5 }
+                        });
+                        break;
+                    case 'guitar':
+                        synth.set({
+                            oscillator: { type: "triangle" },
+                            envelope: { attack: 0.01, decay: 0.5, sustain: 0.1, release: 0.5 }
+                        });
+                        break;
+                    case 'strings':
+                        synth.set({
+                            oscillator: { type: "sine" },
+                            envelope: { attack: 0.2, decay: 0.3, sustain: 0.7, release: 0.8 }
+                        });
+                        break;
+                    case 'organ':
+                        synth.set({
+                            oscillator: { type: "square" },
+                            envelope: { attack: 0.01, decay: 0.1, sustain: 0.9, release: 0.5 }
+                        });
+                        break;
+                    case 'bells':
+                        synth.set({
+                            oscillator: { type: "sine" },
+                            envelope: { attack: 0.01, decay: 2, sustain: 0, release: 0.5 }
+                        });
+                        break;
+                    case 'bass':
+                        synth.set({
+                            oscillator: { type: "sawtooth" },
+                            envelope: { attack: 0.1, decay: 0.5, sustain: 0.2, release: 0.5 }
+                        });
+                        break;
+                    case 'flute':
+                        synth.set({
+                            oscillator: { type: "sine" },
+                            envelope: { attack: 0.3, decay: 0.2, sustain: 0.6, release: 0.5 }
+                        });
+                        break;
+                }
+            });
+            
+            // Add a demo sequence after a short delay
+            setTimeout(() => {
+                // Auto-create a demo sequence if the grid is empty
+                if (selectedPoints.length === 0) {
+                    createDemoSequence();
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
