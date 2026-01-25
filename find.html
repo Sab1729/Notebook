@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Found It!</title>
+  <style>
+    :root{ --bg:#050505; }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:var(--bg); color:#fff; }
+
+    .wrap{
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:28px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,204,102,.10), transparent 35%),
+        radial-gradient(circle at 70% 70%, rgba(120,200,255,.10), transparent 40%),
+        var(--bg);
+    }
+    .card{
+      width:min(860px, 92vw);
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 22px;
+      padding: 26px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+    }
+    h1{ margin:0 0 8px 0; font-size: clamp(28px, 4vw, 46px); }
+    p{ margin:0 0 20px 0; color: rgba(255,255,255,.75); }
+
+    .row{ display:flex; gap:18px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+
+    .btn{
+      border:none;
+      padding:12px 14px;
+      border-radius:14px;
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,255,255,.12);
+      cursor:pointer;
+      font-weight:700;
+      transition:.12s ease;
+      text-decoration:none;
+      display:inline-block;
+      text-align:center;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:hover{ background: rgba(255,255,255,.11); border-color: rgba(255,255,255,.18); }
+    .btn.primary{
+      background: rgba(255,204,102,.18);
+      border-color: rgba(255,204,102,.24);
+    }
+    .btn.primary:hover{
+      background: rgba(255,204,102,.22);
+      border-color: rgba(255,204,102,.34);
+    }
+
+    /* Dancing cat (CSS) */
+    .cat-stage{ flex:1 1 280px; display:grid; place-items:center; min-height:240px; }
+    .cat{ position:relative; width:170px; height:150px; animation:bop 900ms infinite ease-in-out; transform-origin:50% 80%; filter: drop-shadow(0 18px 18px rgba(0,0,0,.45)); }
+    @keyframes bop{ 0%,100%{ transform: translateY(0) rotate(-2deg);} 50%{ transform: translateY(-10px) rotate(2deg);} }
+    .head{ position:absolute; left:50%; top:10px; transform:translateX(-50%); width:110px; height:90px; border-radius:44px 44px 40px 40px; background: rgba(255,255,255,.85); }
+    .ear{ position:absolute; width:34px; height:34px; background: rgba(255,255,255,.85); top:-12px; border-radius:8px 8px 2px 8px; transform: rotate(18deg); }
+    .ear.right{ right:8px; left:auto; border-radius:8px 8px 8px 2px; transform: rotate(-18deg); }
+    .ear.left{ left:8px; }
+    .ear::after{ content:""; position:absolute; inset:8px; background: rgba(255,204,102,.55); border-radius:6px; }
+    .eye{ position:absolute; top:38px; width:10px; height:12px; background: rgba(0,0,0,.65); border-radius:10px; animation: blink 3.2s infinite; }
+    @keyframes blink{ 0%,92%,100%{ transform:scaleY(1);} 94%,96%{ transform:scaleY(.1);} }
+    .eye.left{ left:34px; } .eye.right{ right:34px; }
+    .nose{ position:absolute; left:50%; top:52px; width:10px; height:8px; transform:translateX(-50%); background: rgba(255,120,120,.65); border-radius:8px; }
+    .smile{ position:absolute; left:50%; top:56px; width:22px; height:14px; transform:translateX(-50%); border-bottom:3px solid rgba(0,0,0,.35); border-radius:0 0 18px 18px; }
+    .wh{ position:absolute; top:56px; width:44px; height:2px; background: rgba(0,0,0,.18); }
+    .wh.l1{ left:0; transform: rotate(8deg);} .wh.l2{ left:0; top:66px; transform: rotate(-6deg);}
+    .wh.r1{ right:0; transform: rotate(-8deg);} .wh.r2{ right:0; top:66px; transform: rotate(6deg);}
+    .body{ position:absolute; left:50%; top:78px; transform:translateX(-50%); width:120px; height:86px; border-radius:50px 50px 46px 46px; background: rgba(255,255,255,.78); animation:sway 900ms infinite ease-in-out; }
+    @keyframes sway{ 0%,100%{ transform:translateX(-50%) rotate(2deg);} 50%{ transform:translateX(-50%) rotate(-2deg);} }
+    .paw{ position:absolute; bottom:-8px; width:34px; height:20px; border-radius:16px; background: rgba(255,255,255,.85); }
+    .paw.left{ left:18px;} .paw.right{ right:18px;}
+    .tail{ position:absolute; right:-20px; top:94px; width:80px; height:20px; border-radius:20px; background: rgba(255,255,255,.65); transform-origin:10% 50%; animation: wag 500ms infinite ease-in-out; }
+    @keyframes wag{ 0%,100%{ transform: rotate(18deg);} 50%{ transform: rotate(-18deg);} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 id="title">Happy Birthday!</h1>
+
+      <div class="row">
+        <div class="cat-stage">
+          <div class="cat" role="img" aria-label="Dancing cat">
+            <div class="head">
+              <div class="ear left"></div>
+              <div class="ear right"></div>
+              <div class="eye left"></div>
+              <div class="eye right"></div>
+              <div class="nose"></div>
+              <div class="smile"></div>
+              <div class="wh l1"></div><div class="wh l2"></div>
+              <div class="wh r1"></div><div class="wh r2"></div>
+            </div>
+            <div class="body">
+              <div class="paw left"></div>
+              <div class="paw right"></div>
+            </div>
+            <div class="tail"></div>
+          </div>
+        </div>
+
+        <div style="flex:1 1 260px; min-width:260px; display:flex; flex-direction:column; gap:10px;">
+          <button class="btn primary" id="play">Play tune</button>
+          <button class="btn" id="replay">Replay tune</button>
+
+          <!-- SONG = LINK -->
+          <a class="btn" id="songLink" href="#" target="_blank" rel="noopener">
+            Go to my song
+          </a>
+
+          <a class="btn" href="hunt.html">Back</a>
+
+          <p style="margin:8px 0 0 0; font-size:14px; color: rgba(255,255,255,.65);">
+            If autoplay is blocked, tap <b>Play tune</b>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /******** EDIT THESE ********/
+    const FRIEND_NAME = "Nihal";
+    const SONG_URL = "https://musescore.com/user/32974187/scores/31201952?share=copy_link"; // <-- paste your link here
+    const TEMPO_BPM = 120;
+    /****************************/
+
+    document.getElementById('title').textContent = `Happy Birthday, ${FRIEND_NAME}!`;
+    const songLink = document.getElementById('songLink');
+    songLink.href = SONG_URL;
+
+    // Web Audio Happy Birthday
+    let audioCtx = null;
+    let nodes = [];
+
+    function ensureAudio(){
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    function stop(){
+      nodes.forEach(n => { try{ n.stop && n.stop(); }catch(_){} try{ n.disconnect && n.disconnect(); }catch(_){} });
+      nodes = [];
+    }
+
+    const NOTES = {
+      C4:261.63, D4:293.66, E4:329.63, F4:349.23, G4:392.00, A4:440.00, Bb4:466.16,
+      C5:523.25, D5:587.33, E5:659.25, F5:698.46, G5:783.99
+    };
+
+    const melody = [
+      [NOTES.G4, 1], [NOTES.G4, 1], [NOTES.A4, 2], [NOTES.G4, 2], [NOTES.C5, 2], [NOTES.Bb4, 4],
+      [NOTES.G4, 1], [NOTES.G4, 1], [NOTES.A4, 2], [NOTES.G4, 2], [NOTES.D5, 2], [NOTES.C5, 4],
+      [NOTES.G4, 1], [NOTES.G4, 1], [NOTES.G5, 2], [NOTES.E5, 2], [NOTES.C5, 2], [NOTES.Bb4, 2], [NOTES.A4, 4],
+      [NOTES.F5, 1], [NOTES.F5, 1], [NOTES.E5, 2], [NOTES.C5, 2], [NOTES.D5, 2], [NOTES.C5, 4]
+    ];
+
+    function play(){
+      stop();
+      ensureAudio();
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+
+      const now = audioCtx.currentTime;
+      const beat = 60 / TEMPO_BPM;
+
+      const master = audioCtx.createGain();
+      master.gain.setValueAtTime(0.0001, now);
+      master.gain.exponentialRampToValueAtTime(0.22, now + 0.02);
+      master.connect(audioCtx.destination);
+
+      let t = now + 0.03;
+
+      melody.forEach(([freq, dur]) => {
+        const len = dur * beat;
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t);
+
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.18, t + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + len - 0.02);
+
+        osc.connect(g);
+        g.connect(master);
+
+        osc.start(t);
+        osc.stop(t + len);
+
+        nodes.push(osc, g);
+        t += len;
+      });
+    }
+
+    // Try autoplay once
+    try { play(); } catch(e){}
+
+    document.getElementById('play').addEventListener('click', play);
+    document.getElementById('replay').addEventListener('click', play);
+  </script>
+</body>
+</html>
