@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Club Archive | University Mathematics Society</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --text-tertiary: #666666;
+            --border-color: #333333;
+            --accent-color: #0070f3;
+            --accent-hover: #3291ff;
+            --success-color: #17c964;
+            --warning-color: #f5a623;
+            --error-color: #ff0080;
+        }
+
+        .light-mode {
+            --bg-primary: #ffffff;
+            --bg-secondary: #fafafa;
+            --bg-tertiary: #f5f5f5;
+            --text-primary: #000000;
+            --text-secondary: #666666;
+            --text-tertiary: #888888;
+            --border-color: #eaeaea;
+            --accent-color: #0070f3;
+            --accent-hover: #3291ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--accent-hover);
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background-color: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            padding: 24px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo i {
+            font-size: 24px;
+            color: var(--accent-color);
+        }
+
+        .logo h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+        }
+
+        .nav-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 8px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .nav-links a:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .nav-links a.active {
+            background-color: var(--bg-tertiary);
+            color: var(--accent-color);
+            font-weight: 500;
+        }
+
+        .nav-links i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 300px;
+            padding: 40px;
+            max-width: 900px;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a:hover {
+            color: var(--text-primary);
+        }
+
+        .breadcrumb .separator {
+            color: var(--text-tertiary);
+        }
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-tertiary);
+        }
+
+        /* Page Content */
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .page-header p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            margin-bottom: 48px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .card-icon {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: var(--accent-color);
+        }
+
+        .card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        /* List Items */
+        .list-items {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .list-item:hover {
+            border-color: var(--accent-color);
+        }
+
+        .list-item img {
+            width: 120px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .list-item-content {
+            flex: 1;
+        }
+
+        .list-item h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .list-item p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .list-item .meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .list-item .tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .tag {
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        /* Video Embed */
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Math Abstract */
+        .math-abstract {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 16px 0;
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
+        .math-abstract h4 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        /* Newsletter */
+        .newsletter {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .newsletter h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .newsletter p {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .newsletter-form {
+            display: flex;
+            max-width: 400px;
+            margin: 0 auto;
+            gap: 8px;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .newsletter-form button {
+            padding: 12px 24px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .newsletter-form button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .copyright {
+            color: var(--text-tertiary);
+            font-size: 12px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 260px;
+            }
+            
+            .main-content {
+                margin-left: 260px;
+                padding: 32px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 24px;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .list-item {
+                flex-direction: column;
+            }
+            
+            .list-item img {
+                width: 100%;
+                height: 200px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            
+            .newsletter-form {
+                flex-direction: column;
+            }
+        }
+
+        /* Page Transitions */
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-infinity"></i>
+                <h1>Math Club Archive</h1>
+            </div>
+            
+            <div class="nav-section">
+                <h3>Getting Started</h3>
+                <ul class="nav-links">
+                    <li><a href="#" class="nav-link active" data-page="home"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#" class="nav-link" data-page="articles"><i class="fas fa-book"></i> Articles</a></li>
+                    <li><a href="#" class="nav-link" data-page="videos"><i class="fas fa-video"></i> Videos</a></li>
+                    <li><a href="#" class="nav-link" data-page="games"><i class="fas fa-gamepad"></i> Games</a></li>
+                    <li><a href="#" class="nav-link" data-page="events"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <h3>Categories</h3>
+                <ul class="nav-links">
+                    <li><a href="#"><i class="fas fa-calculator"></i> Algebra</a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i> Calculus</a></li>
+                    <li><a href="#"><i class="fas fa-shapes"></i> Geometry</a></li>
+                    <li><a href="#"><i class="fas fa-superscript"></i> Number Theory</a></li>
+                    <li><a href="#"><i class="fas fa-chart-bar"></i> Statistics</a></li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <h3>Resources</h3>
+                <ul class="nav-links">
+                    <li><a href="#"><i class="fas fa-download"></i> Downloads</a></li>
+                    <li><a href="#"><i class="fas fa-question-circle"></i> FAQ</a></li>
+                    <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="breadcrumb">
+                    <a href="#" class="nav-link" data-page="home">Home</a>
+                    <span class="separator">/</span>
+                    <span id="current-page">Home</span>
+                </div>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+            </div>
+
+            <!-- Home Page -->
+            <div class="page active" id="home-page">
+                <div class="page-header">
+                    <h1>Math Club Archive</h1>
+                    <p>A comprehensive collection of mathematical resources, articles, videos, and interactive content from our university math club.</p>
+                </div>
+
+                <div class="content-section">
+                    <h2 class="section-title">Featured Content</h2>
+                    <div class="cards-grid">
+                        <div class="card">
+                            <div class="card-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <h3>Articles</h3>
+                            <p>Explore our collection of mathematical papers, proofs, and research articles written by students and faculty.</p>
+                            <div class="card-meta">
+                                <span>24 articles</span>
+                                <a href="#" class="nav-link" data-page="articles">View all →</a>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-icon">
+                                <i class="fas fa-video"></i>
+                            </div>
+                            <h3>Videos</h3>
+                            <p>Watch lectures, tutorials, and visual explanations of complex mathematical concepts.</p>
+                            <div class="card-meta">
+                                <span>18 videos</span>
+                                <a href="#" class="nav-link" data-page="videos">View all →</a>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-icon">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                            <h3>Games</h3>
+                            <p>Interactive mathematical games and puzzles to challenge your problem-solving skills.</p>
+                            <div class="card-meta">
+                                <span>12 games</span>
+                                <a href="#" class="nav-link" data-page="games">View all →</a>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <h3>Events</h3>
+                            <p>Information about past and upcoming math club events, competitions, and meetings.</p>
+                            <div class="card-meta">
+                                <span>8 events</span>
+                                <a href="#" class="nav-link" data-page="events">View all →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h2 class="section-title">Latest Additions</h2>
+                    <div class="list-items">
+                        <div class="list-item">
+                            <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Fractal Mathematics">
+                            <div class="list-item-content">
+                                <h3><a href="#">Fractal Dimensions in Natural Phenomena</a></h3>
+                                <p>Exploring how fractal geometry appears in coastlines, ferns, and other natural patterns. This research examines the mathematical principles behind self-similarity.</p>
+                                <div class="meta">
+                                    <span>Dr. Elena Rodriguez</span>
+                                    <span>May 15, 2023</span>
+                                </div>
+                                <div class="tags">
+                                    <span class="tag">Geometry</span>
+                                    <span class="tag">Fractals</span>
+                                    <span class="tag">Research</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="list-item">
+                            <img src="https://images.unsplash.com/photo-1590608897129-79da98d15969?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Complex Numbers">
+                            <div class="list-item-content">
+                                <h3><a href="#">Visualizing Complex Functions</a></h3>
+                                <p>A video exploration of complex number transformations and their beautiful geometric representations in the complex plane.</p>
+                                <div class="meta">
+                                    <span>Prof. Michael Chen</span>
+                                    <span>May 12, 2023</span>
+                                </div>
+                                <div class="tags">
+                                    <span class="tag">Complex Numbers</span>
+                                    <span class="tag">Visualization</span>
+                                    <span class="tag">Education</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="newsletter">
+                    <h2>Stay Updated</h2>
+                    <p>Subscribe to our monthly newsletter to receive updates on new content, events, and mathematical discoveries.</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Articles Page -->
+            <div class="page" id="articles-page">
+                <div class="page-header">
+                    <h1>Articles</h1>
+                    <p>Mathematical papers, proofs, and research articles covering various topics from algebra to topology.</p>
+                </div>
+
+                <div class="content-section">
+                    <h2 class="section-title">Recent Publications</h2>
+                    <div class="list-items">
+                        <div class="list-item">
+                            <img src="https://images.unsplash.com/photo-1581094794321-8410e6a0d9d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Graph Theory">
+                            <div class="list-item-content">
+                                <h3><a href="#">Applications of Graph Theory in Network Analysis</a></h3>
+                                <p>This paper explores how graph theory principles can be applied to analyze social networks, transportation systems, and computer networks.</p>
+                                
+                                <div class="math-abstract">
+                                    <h4>Mathematical Abstract</h4>
+                                    <p>Let G = (V, E) be a simple graph with vertex set V and edge set E. We examine properties of adjacency matrices and their eigenvalues to determine network connectivity. The paper proves that for any connected graph with n vertices, the second smallest eigenvalue of the Laplacian matrix is positive, confirming the graph's connectivity.</p>
+                                </div>
+                                
+                                <div class="meta">
+                                    <span>Dr. Robert Williams</span>
+                                    <span>April 20, 2023</span>
+                                </div>
+                                <div class="tags">
+                                    <span class="tag">Graph Theory</span>
+                                    <span class="tag">Networks</span>
+                                    <span class="tag">Linear Algebra</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="list-item">
+                            <img src="https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Prime Numbers">
+                            <div class="list-item-content">
+                                <h3><a href="#">Patterns in Prime Number Distribution</a></h3>
+                                <p>An investigation into the statistical distribution of prime numbers and the Riemann hypothesis implications.</p>
+                                
+                                <div class="math-abstract">
+                                    <h4>Mathematical Abstract</h4>
+                                    <p>This research examines the prime number theorem extension through the lens of the Riemann zeta function. We establish bounds for the error term in the prime number theorem and explore connections between nontrivial zeros of ζ(s) and prime distribution. The paper presents a new approach to understanding the irregularities in prime spacing.</p>
+                                </div>
+                                
+                                <div class="meta">
+                                    <span>Sarah Johnson</span>
+                                    <span>April 5, 2023</span>
+                                </div>
+                                <div class="tags">
+                                    <span class="tag">Number Theory</span>
+                                    <span class="tag">Primes</span>
+                                    <span class="tag">Analysis</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Videos Page -->
+            <div class="page" id="videos-page">
+                <div class="page-header">
+                    <h1>Videos</h1>
+                    <p>Educational videos, lectures, and visual explanations of mathematical concepts.</p>
+                </div>
+
+                <div class="content-section">
+                    <h2 class="section-title">Featured Videos</h2>
+                    <div class="list-items">
+                        <div class="list-item">
+                            <div class="video-container">
+                                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                            <div class="list-item-content">
+                                <h3><a href="#">Understanding Derivatives Visually</a></h3>
+                                <p>This video provides intuitive visual explanations of derivative concepts, including tangent lines, rates of change, and practical applications in physics and engineering.</p>
+                                <div class="meta">
+                                    <span>Prof. Lisa Thompson</span>
+                                    <span>April 15, 2023</span>
+                                </div>
+                                <div class="tags">
+                                    <span class="tag">Calculus</span>
+                                    <span class="tag">Derivatives</span>
+                                    <span class="tag">Visualization</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="list-item">
+                            <div class="video-container">
+                                <iframe src="https://www.youtube.com/embed/9vKqVkMQHKk" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                            <div class="list-item-content">
+                                <h3><a href="#">Introduction to Topology</a></h3>
+                                <p>A visual journey through the fascinating world of topological spaces, homeomorphisms, and fundamental concepts like connectedness and compactness.</p>
+                                <div class="meta">
+                                    <span>Dr. James Wilson</span>
+                                    <span>March 28, 2023</span>
+                                </div>
+                                <div class="tags">
+                                    <span class="tag">Topology</span>
+                                    <span class="tag">Geometry</span>
+                                    <span class="tag">Advanced</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Games Page -->
+            <div class="page" id="games-page">
+                <div class="page-header">
+                    <h1>Games</h1>
+                    <p>Interactive mathematical games, puzzles, and challenges to develop problem-solving skills.</p>
+                </div>
+
+                <div class="content-section">
+                    <h2 class="section-title">Mathematical Challenges</h2>
+                    <div class="list-items">
+                        <div class="list-item">
+                            <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Prime Game">
+                            <div class="list-item-content">
+                                <h3><a href="https://example.com/prime-explorer" target="_blank">Prime Number Explorer →</a></h3>
+                                <p>Interactive game to discover patterns in prime number distribution. Features include prime factorization, sieve visualizations, and challenge modes with increasing difficulty.</p>
+                                <div class="meta">
+                                    <span>David Kim</span>
+                                    <span>April 10, 2023</span>
+                                </div>
+                                <div class="tags">
+                                    <span class="tag">Number Theory</span>
+                                    <span class="tag">Primes</span>
+                                    <span class="tag">Interactive</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="list-item">
+                            <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Geometry Game">
+                            <div class="list-item-content">
+                                <h3><a href="https://example.com/geometry-puzzles" target="_blank">Euclidean Geometry Puzzles →</a></h3>
+                                <p>A collection of interactive geometry puzzles based on Euclidean principles. Solve construction problems, prove theorems visually, and explore geometric transformations.</p>
+                                <div class="meta">
+                                    <span>Maria Gonzalez</span>
+                                    <span>March 22, 2023</span>
+                                </div>
+                                <div class="tags">
+                                    <span class="tag">Geometry</span>
+                                    <span class="tag">Puzzles</span>
+                                    <span class="tag">Euclidean</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Events Page -->
+            <div class="page" id="events-page">
+                <div class="page-header">
+                    <h1>Events</h1>
+                    <p>Past and upcoming math club events, competitions, workshops, and guest lectures.</p>
+                </div>
+
+                <div class="content-section">
+                    <h2 class="section-title">Recent Events</h2>
+                    <div class="list-items">
+                        <div class="list-item">
+                            <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Math Competition">
+                            <div class="list-item-content">
+                                <h3><a href="event-competition-2023.html">Annual Math Competition 2023</a></h3>
+                                <p>Highlights from our annual inter-collegiate mathematics competition. View problems, solutions, and photos from the event that brought together students from 12 universities.</p>
+                                <div class="meta">
+                                    <span>Math Club Committee</span>
+                                    <span>March 28, 2023</span>
+                                </div>
+                                <div class="tags">
+                                    <span class="tag">Competition</span>
+                                    <span class="tag">Problem Solving</span>
+                                    <span class="tag">Students</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="list-item">
+                            <img src="https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Guest Lecture">
+                            <div class="list-item-content">
+                                <h3><a href="event-lecture-fractals.html">Guest Lecture: The Beauty of Fractals</a></h3>
+                                <p>Dr. Elena Rodriguez presented her research on fractal geometry and its applications in computer graphics, natural phenomena modeling, and data compression.</p>
+                                <div class="meta">
+                                    <span>Dr. Elena Rodriguez</span>
+                                    <span>February 15, 2023</span>
+                                </div>
+                                <div class="tags">
+                                    <span class="tag">Lecture</span>
+                                    <span class="tag">Fractals</span>
+                                    <span class="tag">Research</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                <div class="footer-content">
+                    <div class="footer-links">
+                        <a href="#">About</a>
+                        <a href="#">Contact</a>
+                        <a href="#">Privacy</a>
+                        <a href="#">Terms</a>
+                    </div>
+                    <div class="copyright">
+                        © 2023 University Mathematics Club. All rights reserved.
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        const themeText = themeToggle.querySelector('span');
+        
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            
+            if (document.body.classList.contains('light-mode')) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                themeText.textContent = 'Dark Mode';
+            }
+        });
+
+        // Page Navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        const pages = document.querySelectorAll('.page');
+        const currentPageElement = document.getElementById('current-page');
+        const breadcrumbHome = document.querySelector('.breadcrumb a');
+        
+        // Page titles for breadcrumb
+        const pageTitles = {
+            'home': 'Home',
+            'articles': 'Articles',
+            'videos': 'Videos',
+            'games': 'Games',
+            'events': 'Events'
+        };
+        
+        function showPage(pageId) {
+            // Hide all pages
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(`${pageId}-page`).classList.add('active');
+            
+            // Update active nav link
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.page === pageId) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Update breadcrumb
+            currentPageElement.textContent = pageTitles[pageId];
+        }
+        
+        // Add click events to navigation links
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.dataset.page;
+                showPage(pageId);
+                
+                // Update URL without reloading (for demo purposes)
+                history.pushState({page: pageId}, '', `#${pageId}`);
+            });
+        });
+        
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', (e) => {
+            const pageId = e.state ? e.state.page : 'home';
+            showPage(pageId);
+        });
+        
+        // Initialize with home page
+        showPage('home');
+    </script>
+</body>
+</html>

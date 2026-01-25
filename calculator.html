@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>S-Score Calculator</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#121a33;
+      --text:#e8ecff;
+      --muted:#a9b2d6;
+      --line:rgba(255,255,255,.08);
+      --accent:#7c5cff;
+      --accent2:#35d0ff;
+      --danger:#ff4d6d;
+      --ok:#2ee59d;
+      --shadow: 0 18px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue";
+      background: radial-gradient(1200px 800px at 25% 15%, rgba(124,92,255,.22), transparent 55%),
+                  radial-gradient(900px 700px at 80% 35%, rgba(53,208,255,.18), transparent 55%),
+                  linear-gradient(180deg, #070a14, var(--bg));
+      color:var(--text);
+      min-height:100vh;
+      padding:28px;
+    }
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap:18px;
+    }
+    header{
+      grid-column: 1 / -1;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+      padding:18px 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    h1{margin:0; font-size:20px; letter-spacing:.2px}
+    .sub{margin-top:6px; color:var(--muted); font-size:13px; line-height:1.35}
+    .badge{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:18px;
+    }
+    .card h2{
+      margin:0 0 12px;
+      font-size:14px;
+      color:var(--muted);
+      letter-spacing:.25px;
+      text-transform:uppercase;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    .row{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      padding:10px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+    }
+    label{
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+    }
+    .hint{font-size:11px; opacity:.9}
+    input{
+      width:100%;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+    }
+    input:focus{
+      border-color: rgba(124,92,255,.65);
+      box-shadow: 0 0 0 4px rgba(124,92,255,.16);
+    }
+    .divider{height:1px; background:var(--line); margin:14px 0;}
+    .actions{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;}
+    button{
+      padding:11px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:600;
+      letter-spacing:.2px;
+    }
+    button.primary{
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(53,208,255,.75));
+      border-color: rgba(255,255,255,.18);
+    }
+    button:hover{filter:brightness(1.06)}
+    button:active{transform: translateY(1px)}
+    .out{display:flex; flex-direction:column; gap:12px;}
+    .kv{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:baseline;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.18);
+    }
+    .k{color:var(--muted); font-size:12px}
+    .v{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:13px;
+      text-align:right;
+      word-break:break-all;
+    }
+    .big .v{font-size:18px; font-weight:800}
+    .toast{
+      margin-top:10px;
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.35;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      background: rgba(0,0,0,.18);
+    }
+    .err{color: var(--danger)}
+    .ok{color: var(--ok)}
+    @media (max-width: 980px){
+      .wrap{grid-template-columns: 1fr}
+      header{flex-direction:column}
+      .badge{align-self:flex-start}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>S-Score Calculator</h1>
+        <div class="sub">
+          Uses formula:
+          <b>S = pref · exp(−penalty) · ψ(x)</b><br/>
+          penalty = (|x<sub>t</sub>−x|/σ)^2 + (n/λ1)^2 + (m/λ2)^2, with m=m1+m2+m3.
+        </div>
+      </div>
+      <div class="badge">Defaults used: σ=0.01 · λ1=5 · λ2=7 · T=4 · w=1.5</div>
+    </header>
+
+    <section class="card">
+      <h2>Inputs</h2>
+      <div class="grid">
+        <div class="row">
+          <label>x: Values <span class="hint">real</span></label>
+          <input id="x" type="number" step="any" value="67" />
+        </div>
+        <div class="row">
+          <label>xt: target <span class="hint">real</span></label>
+          <input id="xt" type="number" step="any" value="67" />
+        </div>
+        <div class="row">
+          <label>n: #6-7's <span class="hint">integer ≥ 0</span></label>
+          <input id="n" type="number" step="1" value="1" />
+        </div>
+        <div class="row">
+          <label>m1: #simple operators<span class="hint">integer ≥ 0</span></label>
+          <input id="m1" type="number" step="1" value="0" />
+        </div>
+        <div class="row">
+          <label>m2: #named functions  <span class="hint">integer ≥ 0</span></label>
+          <input id="m2" type="number" step="1" value="1" />
+        </div>
+        <div class="row">
+          <label>m3: #heavy functions  <span class="hint">integer ≥ 0</span></label>
+          <input id="m3" type="number" step="1" value="1" />
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h2>Defaults (editable)</h2>
+      <div class="grid">
+        <div class="row">
+          <label>σ (sigma) <span class="hint">> 0</span></label>
+          <input id="sigma" type="number" step="any" value="0.01" />
+        </div>
+        <div class="row">
+          <label>λ1 (lambda1) <span class="hint">> 0</span></label>
+          <input id="lam1" type="number" step="any" value="5" />
+        </div>
+        <div class="row">
+          <label>λ2 (lambda2) <span class="hint">> 0</span></label>
+          <input id="lam2" type="number" step="any" value="7" />
+        </div>
+        <div class="row">
+          <label>T (psi depth) <span class="hint">integer ≥ 1</span></label>
+          <input id="T" type="number" step="1" value="4" />
+        </div>
+        <div class="row" style="grid-column: 1 / -1;">
+          <label>w (psi hole width) <span class="hint">> 0</span></label>
+          <input id="w" type="number" step="any" value="0.5" />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="calc">Calculate</button>
+        <button id="reset">Reset Defaults</button>
+        <button id="copy">Copy Result</button>
+      </div>
+
+      <div class="toast" id="status">Enter values and click <b>Calculate</b>.</div>
+    </section>
+
+    <section class="card">
+      <h2>Output</h2>
+      <div class="out">
+        <div class="kv"><div class="k">ψ(x)</div><div class="v" id="outPsi">—</div></div>
+        <div class="kv"><div class="k">pref = 100·(0.9)^m2·(0.8)^m3</div><div class="v" id="outPref">—</div></div>
+        <div class="kv"><div class="k">m = m1 + m2 + m3</div><div class="v" id="outM">—</div></div>
+        <div class="kv"><div class="k">penalty</div><div class="v" id="outPenalty">—</div></div>
+        <div class="kv big"><div class="k">S</div><div class="v" id="outS">—</div></div>
+
+        <div class="toast">
+          ψ(x) = Π(1 − exp(−((x − a)/w)^2)) using your custom a-list, truncated to first T entries.
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Your custom a-list (exactly as in your Python fix)
+    const A_FULL = [
+      67, 67+67, 67+67+67, 67+67+67+67, 67+67+67+67+67,
+      6767, 6767+67, 6767+67+67, 6767+67+67+67, 6767+6767, 6767+6767+67, 6767+6767+67+67,
+      676767, 676767+67, 676767+67+67, 676767+67+67+67, 676767+6767, 676767+6767+67, 676767+6767+67+67,
+      67676767, 67676767+67, 67676767+67+67, 67676767+67+67+67, 67676767+6767, 67676767+6767+67, 67676767+6767+67+67
+    ];
+
+    function makeAValues(T){
+      return A_FULL.slice(0, T);
+    }
+
+    function psiNew(x, T, w){
+      const aVals = makeAValues(T);
+      let p = 1.0;
+      for(const a of aVals){
+        const z = (x - a) / w;
+        p *= (1.0 - Math.exp(-(z*z)));
+      }
+      if(p < 0) p = 0;
+      if(p > 1) p = 1;
+      return p;
+    }
+
+    // Your updated score:
+    // S = pref * exp(-penalty) * psi_x
+    // penalty = (|x_t-x|/sigma)^2 + (n/lam1)^2 + (m/lam2)^2  where m=m1+m2+m3
+    function computeScore(p){
+      const psi_x = psiNew(p.x, p.T, p.w);
+      const pref  = 100.0 * Math.pow(0.9, p.m2) * Math.pow(0.8, p.m3);
+      const m = p.m1 + p.m2 + p.m3;
+
+      const penalty =
+        Math.pow(Math.abs(p.xt - p.x) / p.sigma, 2) +
+        Math.pow(p.n / p.lam1, 2) +
+        Math.pow(m / p.lam2, 2);
+
+      const S = pref * Math.exp(-penalty) * psi_x;
+      return {psi_x, pref, m, penalty, S};
+    }
+
+    function readNumber(id){
+      const v = document.getElementById(id).value.trim();
+      return v === "" ? NaN : Number(v);
+    }
+    function readInt(id){
+      const v = document.getElementById(id).value.trim();
+      return v === "" ? NaN : parseInt(v, 10);
+    }
+
+    function setStatus(msg, kind=""){
+      const el = document.getElementById("status");
+      el.textContent = msg;
+      el.classList.remove("err","ok");
+      if(kind) el.classList.add(kind);
+    }
+
+    function fmt(x){
+      if(!Number.isFinite(x)) return "NaN";
+      if(x !== 0 && (Math.abs(x) < 1e-6 || Math.abs(x) > 1e6)) return x.toExponential(6);
+      return x.toPrecision(12).replace(/0+$/,'').replace(/\.$/,'');
+    }
+
+    function validate(p){
+      const errs = [];
+      for(const [name, v] of [["n", p.n], ["m1", p.m1], ["m2", p.m2], ["m3", p.m3], ["T", p.T]]){
+        if(!Number.isInteger(v)) errs.push(`${name} must be an integer`);
+      }
+      for(const [name, v] of [["n", p.n], ["m1", p.m1], ["m2", p.m2], ["m3", p.m3]]){
+        if(v < 0) errs.push(`${name} must be ≥ 0`);
+      }
+      if(!Number.isFinite(p.x) || !Number.isFinite(p.xt)) errs.push(`x and x_t must be real numbers`);
+      for(const [name, v] of [["sigma", p.sigma], ["lambda1", p.lam1], ["lambda2", p.lam2], ["w", p.w]]){
+        if(!Number.isFinite(v) || v <= 0) errs.push(`${name} must be > 0`);
+      }
+      if(!Number.isFinite(p.T) || p.T < 1) errs.push(`T must be ≥ 1`);
+      if(p.T > A_FULL.length) errs.push(`T must be ≤ ${A_FULL.length} (length of your a-list)`);
+      return errs;
+    }
+
+    function calculate(){
+      const p = {
+        x: readNumber("x"),
+        xt: readNumber("xt"),
+        n: readInt("n"),
+        m1: readInt("m1"),
+        m2: readInt("m2"),
+        m3: readInt("m3"),
+        sigma: readNumber("sigma"),
+        lam1: readNumber("lam1"),
+        lam2: readNumber("lam2"),
+        T: readInt("T"),
+        w: readNumber("w"),
+      };
+
+      const errs = validate(p);
+      if(errs.length){
+        setStatus(errs[0], "err");
+        for(const id of ["outPsi","outPref","outM","outPenalty","outS"]) document.getElementById(id).textContent = "—";
+        return;
+      }
+
+      const {psi_x, pref, m, penalty, S} = computeScore(p);
+
+      document.getElementById("outPsi").textContent = fmt(psi_x);
+      document.getElementById("outPref").textContent = fmt(pref);
+      document.getElementById("outM").textContent = fmt(m);
+      document.getElementById("outPenalty").textContent = fmt(penalty);
+      document.getElementById("outS").textContent = fmt(S);
+
+      setStatus("Calculated successfully.", "ok");
+
+      window.__lastResult = { ...p, psi_x, pref, m, penalty, S };
+    }
+
+    function resetDefaults(){
+      document.getElementById("sigma").value = "0.01";
+      document.getElementById("lam1").value = "5";
+      document.getElementById("lam2").value = "7";
+      document.getElementById("T").value = "4";
+      document.getElementById("w").value = "1.5";
+      setStatus("Defaults reset. Click Calculate.", "");
+    }
+
+    async function copyResult(){
+      const r = window.__lastResult;
+      if(!r){
+        setStatus("Nothing to copy yet. Click Calculate first.", "err");
+        return;
+      }
+      const text =
+        `Inputs:\n` +
+        `x=${r.x}, x_t=${r.xt}, n=${r.n}, m1=${r.m1}, m2=${r.m2}, m3=${r.m3}\n` +
+        `sigma=${r.sigma}, lambda1=${r.lam1}, lambda2=${r.lam2}, T=${r.T}, w=${r.w}\n\n` +
+        `Outputs:\n` +
+        `psi(x)=${r.psi_x}\n` +
+        `pref=${r.pref}\n` +
+        `m=${r.m}\n` +
+        `penalty=${r.penalty}\n` +
+        `S=${r.S}\n`;
+      try{
+        await navigator.clipboard.writeText(text);
+        setStatus("Copied result to clipboard.", "ok");
+      }catch(e){
+        setStatus("Clipboard copy failed (browser permissions).", "err");
+      }
+    }
+
+    document.getElementById("calc").addEventListener("click", calculate);
+    document.getElementById("reset").addEventListener("click", resetDefaults);
+    document.getElementById("copy").addEventListener("click", copyResult);
+
+    document.addEventListener("keydown", (e)=>{ if(e.key === "Enter") calculate(); });
+
+    // initial compute
+    calculate();
+  </script>
+</body>
+</html>
