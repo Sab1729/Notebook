@@ -1,0 +1,1362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Brick Automaton Lab</title>
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#0d131b;
+      --card:#0b1118;
+      --muted:#9fb2c7;
+      --text:#e6edf3;
+      --sub:#c9d1d9;
+      --accent:#69d2ff;
+      --accent2:#9b7bff;
+      --ok:#2ce6a6;
+      --warn:#ffcc66;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    :root { color-scheme: dark; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:var(--bg);
+      color:var(--text);
+      display:grid;
+      grid-template-columns: 460px 1fr;
+      min-height:100vh;
+    }
+
+    #sidebar{
+      background: linear-gradient(180deg, #0f1824 0%, var(--panel) 30%, var(--panel) 100%);
+      border-right:1px solid rgba(255,255,255,0.06);
+      overflow:auto;
+    }
+    .topbar{
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      padding: 14px 16px;
+      background: rgba(13,19,27,0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .title{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .title h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing: 0.2px;
+    }
+    .pill{
+      font-size:12px;
+      color: var(--sub);
+      padding: 5px 10px;
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:999px;
+      background: rgba(0,0,0,0.20);
+    }
+    .subtitle{
+      margin:8px 0 0;
+      font-size:13px;
+      color: var(--sub);
+      line-height: 1.35;
+    }
+
+    .wrap{ padding: 12px 14px 18px; }
+    details{
+      background: rgba(0,0,0,0.10);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      margin: 10px 0;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
+    summary{
+      cursor:pointer;
+      list-style:none;
+      padding: 12px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      user-select:none;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    .sumLeft{ display:flex; flex-direction:column; gap:2px; }
+    .sumTitle{ font-size: 13px; font-weight: 750; }
+    .sumHint{ font-size: 12px; color: var(--muted); }
+    .chev{
+      width: 28px; height: 28px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.20);
+      display:grid; place-items:center;
+      color: rgba(255,255,255,0.75);
+      transition: transform 160ms ease;
+    }
+    details[open] .chev{ transform: rotate(180deg); }
+
+    .content{
+      padding: 0 12px 12px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px; }
+    .grid3{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; margin-top:10px; }
+    .grid1{ display:grid; grid-template-columns: 1fr; gap:10px; margin-top:10px; }
+
+    label{
+      font-size:12px;
+      color: var(--sub);
+      display:block;
+      margin-bottom:6px;
+    }
+    input[type="number"], input[type="text"], select, textarea{
+      width:100%;
+      padding:9px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.22);
+      color: var(--text);
+      outline:none;
+      box-sizing:border-box;
+    }
+    textarea{
+      min-height: 100px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    input[type="range"]{ width:100%; }
+    .btn{
+      padding:10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.22);
+      color: var(--text);
+      cursor:pointer;
+      font-weight: 750;
+      letter-spacing: 0.15px;
+    }
+    .btn:hover{ background: rgba(255,255,255,0.05); }
+    .btn.primary{
+      border-color: rgba(105,210,255,0.35);
+      box-shadow: 0 0 0 2px rgba(105,210,255,0.10) inset;
+    }
+    .btn.good{
+      border-color: rgba(44,230,166,0.35);
+      box-shadow: 0 0 0 2px rgba(44,230,166,0.10) inset;
+    }
+    .btn.warn{
+      border-color: rgba(255,204,102,0.35);
+      box-shadow: 0 0 0 2px rgba(255,204,102,0.10) inset;
+    }
+    .rowline{
+      margin-top:10px;
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.20);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .check{
+      display:flex; align-items:center; gap:8px;
+      font-size:12px; color: var(--sub);
+      margin-top:8px;
+    }
+    .check input{ transform: translateY(1px); }
+
+    .seedStrip{
+      margin-top:10px;
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.20);
+      overflow:auto;
+      white-space: nowrap;
+    }
+    .bitBtn{
+      display:inline-grid;
+      place-items:center;
+      width: 30px;
+      height: 30px;
+      margin: 2px 4px 2px 0;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.20);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      color: var(--sub);
+      cursor:pointer;
+      user-select:none;
+    }
+    .bitBtn.on{
+      background: rgba(105,210,255,0.18);
+      border-color: rgba(105,210,255,0.35);
+      color: var(--text);
+      box-shadow: 0 0 0 2px rgba(105,210,255,0.10) inset;
+    }
+    .bitBtn.locked{ opacity: 0.45; cursor:not-allowed; }
+
+    .ruleTableWrap{
+      margin-top:10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.20);
+      max-height: 320px;
+      overflow:auto;
+    }
+    .ruleRow{
+      display:grid;
+      grid-template-columns: 1fr 90px;
+      gap:10px;
+      align-items:center;
+      padding:9px 10px;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      font-size:12px;
+      color: var(--sub);
+    }
+    .ruleRow:last-child{ border-bottom:none; }
+    .bits{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+    .chip{
+      min-width: 22px;
+      text-align:center;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.20);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: rgba(255,255,255,0.85);
+    }
+    .arrow{ opacity: 0.75; padding: 0 6px; }
+    .toggleOut{
+      width: 90px;
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.20);
+      cursor:pointer;
+      display:grid; place-items:center;
+      font-weight: 850;
+      letter-spacing: 0.2px;
+      user-select:none;
+    }
+    .toggleOut.on{
+      background: rgba(155,123,255,0.18);
+      border-color: rgba(155,123,255,0.35);
+      box-shadow: 0 0 0 2px rgba(155,123,255,0.10) inset;
+    }
+
+    #stage{
+      position:relative;
+      overflow:auto;
+      background:
+        radial-gradient(1400px 700px at 20% 10%, #111a26 0%, #0b0f14 60%, #070a0f 100%);
+    }
+    canvas{ display:block; margin: 0 auto; }
+
+    .stageTop{
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      padding: 12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: rgba(11,15,20,0.65);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .stageTop .left{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      color: var(--sub);
+      font-size: 12px;
+    }
+    .stageTop .right{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .mini{
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.20);
+      color: var(--text);
+      font-weight: 750;
+      cursor:pointer;
+      font-size: 12px;
+    }
+    .mini:hover{ background: rgba(255,255,255,0.05); }
+
+    .toast{
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 10;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(12px);
+      color: var(--sub);
+      font-size: 12px;
+      max-width: 460px;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 160ms ease, transform 160ms ease;
+      pointer-events:none;
+    }
+    .toast.show{ opacity: 1; transform: translateY(0); }
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.25);
+      color: rgba(255,255,255,0.85);
+    }
+  </style>
+</head>
+<body>
+  <aside id="sidebar">
+    <div class="topbar">
+      <div class="title">
+        <h1>Brick Automaton Lab</h1>
+        <span class="pill" id="pillInfo">K=4 • N=8</span>
+      </div>
+      <div class="subtitle">
+        Paint the top row, generate sequences, and explore K-parent rules on a brick/offset-square grid.
+      </div>
+    </div>
+
+    <div class="wrap">
+      <!-- TOP SEQUENCE -->
+      <details open>
+        <summary>
+          <div class="sumLeft">
+            <div class="sumTitle">Top Row Sequence</div>
+            <div class="sumHint">Seed first N cells → auto-fill the rest</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="content">
+          <div class="grid2">
+            <div>
+              <label>Seed length N</label>
+              <input id="seedN" type="number" min="1" max="400" value="8" />
+            </div>
+            <div>
+              <label>Lock mode</label>
+              <select id="lockMode">
+                <option value="lock" selected>Lock: only first N editable</option>
+                <option value="free">Free: entire top row editable</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="check">
+            <input id="autoGenTop" type="checkbox" checked />
+            <label for="autoGenTop" style="margin:0;">Auto-generate top row after edits (recommended)</label>
+          </div>
+
+          <div class="rowline">
+            Base rule (locked mode):
+            <span class="kbd">s[m+n] = XOR(s[m..m+n-1])</span>
+          </div>
+
+          <div class="grid2" style="margin-top:10px;">
+            <div>
+              <label>Addon (optional)</label>
+              <select id="addonMode">
+                <option value="none" selected>None</option>
+                <option value="s1s2">Addon: a(m)=s1 if m even, s2 if m odd</option>
+              </select>
+            </div>
+            <div>
+              <label>Parity indexing for m</label>
+              <select id="mIndexing">
+                <option value="math1" selected>Math style: first step uses m=1</option>
+                <option value="js0">JS style: first step uses m=0</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="rowline" id="addonExplain"></div>
+
+          <div class="grid1">
+            <div>
+              <label>Paste seed bits (0/1) — e.g. 101001 (fills first N)</label>
+              <input id="seedBits" type="text" placeholder="101001" />
+            </div>
+          </div>
+
+          <div class="grid3">
+            <button class="btn primary" id="applySeed">Apply seed</button>
+            <button class="btn" id="genTop">Generate rest</button>
+            <button class="btn" id="randSeed">Random seed</button>
+          </div>
+          <div class="grid3">
+            <button class="btn" id="clearSeed">Clear seed</button>
+            <button class="btn" id="oneMiddleSeed">Single 1 (inside N)</button>
+            <button class="btn" id="zeroAfterN">Zero after N</button>
+          </div>
+
+          <div class="rowline">Click to edit seed bits quickly:</div>
+          <div class="seedStrip" id="seedStrip"></div>
+        </div>
+      </details>
+
+      <!-- K-PARENT RULE -->
+      <details open>
+        <summary>
+          <div class="sumLeft">
+            <div class="sumTitle">Below-Grid Rule</div>
+            <div class="sumHint">K parents → truth table (toggle outputs)</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="content">
+          <div class="grid2">
+            <div>
+              <label>Parent count K (max 8)</label>
+              <select id="kParents">
+                <option>2</option><option>3</option><option selected>4</option>
+                <option>5</option><option>6</option><option>7</option><option>8</option>
+              </select>
+            </div>
+            <div>
+              <label>Preset</label>
+              <select id="kPreset">
+                <option value="parity" selected>Parity (XOR of all K)</option>
+                <option value="majority">Majority (≥ ceil(K/2))</option>
+                <option value="and">AND (all 1)</option>
+                <option value="or">OR (any 1)</option>
+                <option value="zero">All 0</option>
+                <option value="one">All 1</option>
+                <option value="random">Random</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label>Parent mapping</label>
+              <select id="parentMode">
+                <option value="window" selected>Window (centered K consecutive)</option>
+                <option value="sides">Sides only (L.. | R..), even K best</option>
+              </select>
+            </div>
+            <div class="check" style="align-self:end;">
+              <input id="autoApplyPreset" type="checkbox" checked />
+              <label for="autoApplyPreset" style="margin:0;">Auto-apply preset on K change</label>
+            </div>
+          </div>
+
+          <div class="grid3">
+            <button class="btn good" id="applyKPreset">Apply preset</button>
+            <button class="btn" id="setAll0">Set all → 0</button>
+            <button class="btn" id="setAll1">Set all → 1</button>
+          </div>
+
+          <div class="rowline" id="mappingHint"></div>
+
+          <div class="grid1">
+            <div>
+              <label>Filter truth table (type a bitstring like 0101)</label>
+              <input id="ruleFilter" type="text" placeholder="e.g. 0101" />
+            </div>
+          </div>
+
+          <div class="ruleTableWrap" id="ruleTable"></div>
+        </div>
+      </details>
+
+      <!-- GRID + VIEW -->
+      <details>
+        <summary>
+          <div class="sumLeft">
+            <div class="sumTitle">Grid & View</div>
+            <div class="sumHint">Resize + zoom + anchor</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="content">
+          <div class="grid2">
+            <div>
+              <label>Columns</label>
+              <input id="cols" type="number" min="5" max="400" value="80" />
+            </div>
+            <div>
+              <label>Rows</label>
+              <input id="rows" type="number" min="5" max="400" value="60" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label>Resize anchor (columns)</label>
+              <select id="colAnchor">
+                <option value="left" selected>Left</option>
+                <option value="center">Center</option>
+              </select>
+            </div>
+            <div style="align-self:end;">
+              <button class="btn primary" id="applySize" style="width:100%;">Apply size (preserve)</button>
+            </div>
+          </div>
+
+          <div class="grid3">
+            <button class="btn" id="colMinus">- Col</button>
+            <button class="btn warn" id="rebuild">Rebuild (wipe)</button>
+            <button class="btn" id="colPlus">+ Col</button>
+          </div>
+          <div class="grid3">
+            <button class="btn" id="rowMinus">- Row</button>
+            <div></div>
+            <button class="btn" id="rowPlus">+ Row</button>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label>Cell size</label>
+              <input id="cellSize" type="range" min="6" max="30" value="12" />
+            </div>
+            <div>
+              <label>Zoom</label>
+              <input id="zoom" type="range" min="50" max="180" value="100" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <button class="btn" id="fitView">Fit view</button>
+            <button class="btn" id="downloadPng">Download PNG</button>
+          </div>
+
+          <div class="rowline">
+            Shortcuts: <span class="kbd">C</span> clear top • <span class="kbd">R</span> random top • <span class="kbd">I</span> invert top
+          </div>
+        </div>
+      </details>
+
+      <!-- EXPORT/IMPORT -->
+      <details>
+        <summary>
+          <div class="sumLeft">
+            <div class="sumTitle">Export / Import</div>
+            <div class="sumHint">Save your setup as JSON</div>
+          </div>
+          <div class="chev">⌄</div>
+        </summary>
+        <div class="content">
+          <div class="grid2">
+            <button class="btn" id="exportBtn">Export → box</button>
+            <button class="btn" id="importBtn">Import from box</button>
+          </div>
+          <div class="grid1">
+            <textarea id="jsonBox" placeholder='Paste JSON here...'></textarea>
+          </div>
+          <div class="rowline">
+            Tip: Export after you find a cool rule, then share the JSON.
+          </div>
+        </div>
+      </details>
+    </div>
+  </aside>
+
+  <main id="stage">
+    <div class="stageTop">
+      <div class="left" id="statusLine">Ready. Drag on the top row to paint.</div>
+      <div class="right">
+        <button class="mini" id="miniClear">Clear top</button>
+        <button class="mini" id="miniRand">Random top</button>
+        <button class="mini" id="miniInvert">Invert top</button>
+      </div>
+    </div>
+    <canvas id="cv"></canvas>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+
+  // UI refs
+  const pillInfo = document.getElementById('pillInfo');
+  const statusLine = document.getElementById('statusLine');
+  const toastEl = document.getElementById('toast');
+
+  // Top sequence UI
+  const seedNEl = document.getElementById('seedN');
+  const lockModeEl = document.getElementById('lockMode');
+  const autoGenTopEl = document.getElementById('autoGenTop');
+  const seedBitsEl = document.getElementById('seedBits');
+  const applySeedBtn = document.getElementById('applySeed');
+  const genTopBtn = document.getElementById('genTop');
+  const randSeedBtn = document.getElementById('randSeed');
+  const clearSeedBtn = document.getElementById('clearSeed');
+  const oneMiddleSeedBtn = document.getElementById('oneMiddleSeed');
+  const zeroAfterNBtn = document.getElementById('zeroAfterN');
+  const seedStripEl = document.getElementById('seedStrip');
+
+  // Addon UI (the thing you asked)
+  const addonModeEl = document.getElementById('addonMode');
+  const mIndexingEl = document.getElementById('mIndexing');
+  const addonExplainEl = document.getElementById('addonExplain');
+
+  // Rule UI
+  const kParentsEl = document.getElementById('kParents');
+  const kPresetEl = document.getElementById('kPreset');
+  const parentModeEl = document.getElementById('parentMode');
+  const autoApplyPresetEl = document.getElementById('autoApplyPreset');
+  const applyKPresetBtn = document.getElementById('applyKPreset');
+  const setAll0Btn = document.getElementById('setAll0');
+  const setAll1Btn = document.getElementById('setAll1');
+  const mappingHintEl = document.getElementById('mappingHint');
+  const ruleFilterEl = document.getElementById('ruleFilter');
+  const ruleTableEl = document.getElementById('ruleTable');
+
+  // Grid UI
+  const colsEl = document.getElementById('cols');
+  const rowsEl = document.getElementById('rows');
+  const colAnchorEl = document.getElementById('colAnchor');
+  const applySizeBtn = document.getElementById('applySize');
+  const rebuildBtn = document.getElementById('rebuild');
+  const colMinusBtn = document.getElementById('colMinus');
+  const colPlusBtn = document.getElementById('colPlus');
+  const rowMinusBtn = document.getElementById('rowMinus');
+  const rowPlusBtn = document.getElementById('rowPlus');
+  const cellSizeEl = document.getElementById('cellSize');
+  const zoomEl = document.getElementById('zoom');
+  const fitViewBtn = document.getElementById('fitView');
+  const downloadPngBtn = document.getElementById('downloadPng');
+
+  // Mini buttons
+  const miniClear = document.getElementById('miniClear');
+  const miniRand = document.getElementById('miniRand');
+  const miniInvert = document.getElementById('miniInvert');
+
+  // Export/Import
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+  const jsonBox = document.getElementById('jsonBox');
+
+  // State
+  let COLS = +colsEl.value;
+  let ROWS = +rowsEl.value;
+  let S = +cellSizeEl.value;
+  let ZOOM = +zoomEl.value / 100;
+  const PAD = 20;
+
+  let grid = [];               // grid[r][c] = 0/1
+  let painting = false;
+  let paintValue = 1;
+
+  let K = +kParentsEl.value;   // parent count
+  let ruleOut = new Uint8Array(1 << K); // truth table outputs
+
+  // Smooth dragging recompute
+  let rafPending = false;
+  function scheduleRecompute(reason){
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(() => {
+      rafPending = false;
+      recomputeAll(reason);
+    });
+  }
+
+  // Utilities
+  const clamp = (n,a,b) => Math.max(a, Math.min(b, n));
+  function toast(msg){
+    statusLine.textContent = msg;
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(()=>toastEl.classList.remove('show'), 1400);
+  }
+  function isLocked(){ return lockModeEl.value === "lock"; }
+
+  function getSeedN(){
+    let n = +seedNEl.value || 1;
+    n = clamp(n, 1, COLS);
+    if (+seedNEl.value !== n) seedNEl.value = n;
+    return n;
+  }
+
+  function getCell(r,c){
+    if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return 0;
+    return grid[r][c] ? 1 : 0;
+  }
+
+  // --- Parent mapping (below-grid rule) ---
+  function computeRuleIndexForCell(r, c){
+    const shifted = (r % 2) === 1;
+    const center = c + (shifted ? 0.5 : 0.0);
+
+    let idx = 0;
+
+    if (parentModeEl.value === "window" || (parentModeEl.value === "sides" && (K % 2 === 1))){
+      const start = Math.floor(center - (K - 1)/2);
+      for (let i=0;i<K;i++){
+        const b = getCell(r-1, start+i);
+        idx = (idx<<1) | (b & 1);
+      }
+      return idx;
+    }
+
+    // sides only, even K: K/2 on left + K/2 on right
+    const m = K/2;
+    const leftEnd = Math.floor(center);
+    const leftStart = leftEnd - (m - 1);
+    const rightStart = Math.ceil(center);
+
+    for (let i=0;i<m;i++){
+      const b = getCell(r-1, leftStart + i);
+      idx = (idx<<1) | (b & 1);
+    }
+    for (let i=0;i<m;i++){
+      const b = getCell(r-1, rightStart + i);
+      idx = (idx<<1) | (b & 1);
+    }
+    return idx;
+  }
+
+  // --- Your addon: a(m) = s1 if m even, s2 if m odd ---
+  // s1 = top[0], s2 = top[1] (if missing, treat as 0)
+  function addonBitForM(mZeroBased){
+    if (addonModeEl.value !== "s1s2") return 0;
+
+    const top = grid[0];
+    const s1 = (top[0] ?? 0) & 1;
+    const s2 = (top[1] ?? 0) & 1;
+
+    // Decide whether parity is based on m starting at 1 (math) or 0 (js)
+    const mForParity = (mIndexingEl.value === "math1") ? (mZeroBased + 1) : mZeroBased;
+
+    // a(m) = s1 if m even else s2
+    return (mForParity % 2 === 0) ? s1 : s2;
+  }
+
+  // --- Top row recurrence (correct sliding-window form) ---
+  // Base: s[m+n] = XOR(s[m..m+n-1])
+  // With addon: s[m+n] = XOR(window) XOR a(m)
+  function generateTopRowFromSeed(){
+    const n = getSeedN();
+    const top = grid[0];
+
+    // XOR of first window top[0..n-1]
+    let windowXor = 0;
+    for (let i=0;i<n;i++) windowXor ^= (top[i] & 1);
+
+    // m=0 corresponds to producing top[n] = s[n+1] in 1-based math
+    for (let m = 0; m + n < COLS; m++) {
+      const a = addonBitForM(m);
+      const next = (windowXor ^ a) & 1;
+
+      top[m + n] = next;
+
+      // slide window: remove top[m], add next
+      windowXor ^= (top[m] & 1) ^ next;
+    }
+  }
+
+  // --- Below-grid computation ---
+  function computeAllBelow(){
+    for (let r=1;r<ROWS;r++){
+      for (let c=0;c<COLS;c++){
+        const idx = computeRuleIndexForCell(r,c);
+        grid[r][c] = ruleOut[idx] & 1;
+      }
+    }
+  }
+
+  function recomputeAll(reason){
+    if (isLocked() && autoGenTopEl.checked) generateTopRowFromSeed();
+    computeAllBelow();
+    resizeCanvas();
+    draw();
+    updatePill();
+    renderSeedStrip(); // keep strip synced visually
+    updateAddonExplain();
+    if (reason) statusLine.textContent = reason;
+  }
+
+  // --- Rendering ---
+  function resizeCanvas(){
+    S = clamp(+cellSizeEl.value || S, 6, 30);
+    ZOOM = clamp((+zoomEl.value || (ZOOM*100))/100, 0.5, 1.8);
+
+    const dpr = window.devicePixelRatio || 1;
+    const cell = S * ZOOM;
+    const pad = PAD * ZOOM;
+
+    const cssW = pad*2 + COLS*cell + cell/2;
+    const cssH = pad*2 + ROWS*cell;
+
+    cv.style.width = cssW + "px";
+    cv.style.height = cssH + "px";
+    cv.width = Math.floor(cssW * dpr);
+    cv.height = Math.floor(cssH * dpr);
+
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.imageSmoothingEnabled = false;
+  }
+
+  function draw(){
+    const w = parseFloat(cv.style.width);
+    const h = parseFloat(cv.style.height);
+
+    const cell = S * ZOOM;
+    const pad = PAD * ZOOM;
+
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = "#0b0f14";
+    ctx.fillRect(0,0,w,h);
+
+    const gridLine = "rgba(255,255,255,0.06)";
+    const topRowLine = "rgba(220,240,255,0.18)";
+    const onFill = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || "#69d2ff";
+    const offShade = "rgba(255,255,255,0.02)";
+    const lockShade = "rgba(255,255,255,0.035)";
+
+    const n = getSeedN();
+    const locked = isLocked();
+
+    for (let r=0;r<ROWS;r++){
+      const xOff = (r%2) ? (cell/2) : 0;
+      const y = pad + r*cell;
+      for (let c=0;c<COLS;c++){
+        const x = pad + xOff + c*cell;
+
+        if (grid[r][c]) ctx.fillStyle = onFill;
+        else {
+          if (r===0 && locked && c>=n) ctx.fillStyle = lockShade;
+          else ctx.fillStyle = offShade;
+        }
+        ctx.fillRect(x,y,cell,cell);
+
+        ctx.strokeStyle = (r===0) ? topRowLine : gridLine;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x+0.5,y+0.5,cell-1,cell-1);
+      }
+    }
+
+    ctx.fillStyle = "rgba(255,255,255,0.65)";
+    ctx.font = `${Math.max(12, Math.floor(12*ZOOM))}px ui-sans-serif, system-ui`;
+    const label = locked
+      ? `Top row: first N=${n} editable • Below: K=${K} (${parentModeEl.value})`
+      : `Top row: free edit • Below: K=${K} (${parentModeEl.value})`;
+    ctx.fillText(label, pad, pad-6);
+  }
+
+  // --- Picking cells ---
+  function pickCell(clientX, clientY){
+    const rect = cv.getBoundingClientRect();
+    const mx = (clientX - rect.left);
+    const my = (clientY - rect.top);
+
+    const cell = S * ZOOM;
+    const pad = PAD * ZOOM;
+
+    const r = Math.floor((my - pad) / cell);
+    if (r < 0 || r >= ROWS) return null;
+
+    const xOff = (r%2) ? (cell/2) : 0;
+    const c = Math.floor((mx - pad - xOff) / cell);
+    if (c < 0 || c >= COLS) return null;
+
+    const x = pad + xOff + c*cell;
+    const y = pad + r*cell;
+    if (mx < x || mx > x+cell || my < y || my > y+cell) return null;
+
+    return {r,c};
+  }
+
+  function applyTopCell(c, value){
+    grid[0][c] = value ? 1 : 0;
+    scheduleRecompute();
+  }
+
+  // --- Seed strip ---
+  function renderSeedStrip(){
+    const n = getSeedN();
+    const locked = isLocked();
+
+    // If strip is not yet created (init), just bail safely
+    if (!seedStripEl) return;
+
+    seedStripEl.innerHTML = "";
+    for (let i=0;i<n;i++){
+      const b = document.createElement('span');
+      b.className = "bitBtn" + (grid[0][i] ? " on":"");
+      b.textContent = grid[0][i] ? "1" : "0";
+      b.title = `Seed bit s[${i+1}]`;
+      b.addEventListener('click', () => {
+        grid[0][i] ^= 1;
+        scheduleRecompute("Seed bit toggled.");
+      });
+      seedStripEl.appendChild(b);
+    }
+    if (locked){
+      const hint = document.createElement('span');
+      hint.className = "bitBtn locked";
+      hint.textContent = "…";
+      hint.title = "Remaining top row is auto-generated when locked";
+      seedStripEl.appendChild(hint);
+    }
+  }
+
+  // --- Truth table UI ---
+  function bitsForIndex(idx, k){
+    const bits = new Array(k);
+    for (let i=k-1;i>=0;i--){ bits[i]= idx & 1; idx >>= 1; }
+    return bits;
+  }
+
+  function renderRuleTable(){
+    const filter = (ruleFilterEl.value || "").trim();
+    ruleTableEl.innerHTML = "";
+
+    const size = 1 << K;
+    for (let idx=0; idx<size; idx++){
+      const bits = bitsForIndex(idx,K);
+      const bitStr = bits.join("");
+      if (filter && !bitStr.includes(filter)) continue;
+
+      const row = document.createElement('div');
+      row.className = "ruleRow";
+
+      const left = document.createElement('div');
+      left.className = "bits";
+      for (const b of bits){
+        const chip = document.createElement('span');
+        chip.className = "chip";
+        chip.textContent = String(b);
+        left.appendChild(chip);
+      }
+      const arrow = document.createElement('span');
+      arrow.className = "arrow";
+      arrow.textContent = "→";
+      left.appendChild(arrow);
+
+      const out = document.createElement('div');
+      out.className = "toggleOut" + (ruleOut[idx] ? " on":"");
+      out.textContent = ruleOut[idx] ? "1" : "0";
+      out.title = `Toggle output for ${bitStr}`;
+      out.addEventListener('click', () => {
+        ruleOut[idx] ^= 1;
+        out.classList.toggle("on", !!ruleOut[idx]);
+        out.textContent = ruleOut[idx] ? "1" : "0";
+        scheduleRecompute("Rule table edited.");
+      });
+
+      row.appendChild(left);
+      row.appendChild(out);
+      ruleTableEl.appendChild(row);
+    }
+  }
+
+  function applyKPreset(preset){
+    const size = 1 << K;
+    ruleOut = new Uint8Array(size);
+
+    if (preset === "zero"){
+      ruleOut.fill(0);
+    } else if (preset === "one"){
+      ruleOut.fill(1);
+    } else if (preset === "random"){
+      for (let i=0;i<size;i++) ruleOut[i] = (Math.random()<0.5)?0:1;
+    } else if (preset === "parity"){
+      for (let idx=0;idx<size;idx++){
+        let x=idx, p=0;
+        for (let i=0;i<K;i++){ p ^= (x&1); x >>= 1; }
+        ruleOut[idx]=p;
+      }
+    } else if (preset === "and"){
+      ruleOut[size-1]=1;
+    } else if (preset === "or"){
+      for (let idx=1; idx<size; idx++) ruleOut[idx]=1;
+    } else if (preset === "majority"){
+      const thresh = Math.ceil(K/2);
+      for (let idx=0; idx<size; idx++){
+        let x=idx, ones=0;
+        for (let i=0;i<K;i++){ ones += (x&1); x >>= 1; }
+        ruleOut[idx] = (ones >= thresh) ? 1 : 0;
+      }
+    }
+
+    renderRuleTable();
+    scheduleRecompute(`Applied preset: ${preset.toUpperCase()}`);
+  }
+
+  function updateMappingHint(){
+    function offsetsForRow(shifted){
+      const center = 0 + (shifted ? 0.5 : 0.0);
+
+      if (parentModeEl.value === "window" || (parentModeEl.value==="sides" && (K%2===1))){
+        const start = Math.floor(center - (K-1)/2);
+        const arr = [];
+        for (let i=0;i<K;i++) arr.push(start+i);
+        return arr;
+      } else {
+        const m = K/2;
+        const leftEnd = Math.floor(center);
+        const leftStart = leftEnd - (m-1);
+        const rightStart = Math.ceil(center);
+        const arr = [];
+        for (let i=0;i<m;i++) arr.push(leftStart+i);
+        for (let i=0;i<m;i++) arr.push(rightStart+i);
+        return arr;
+      }
+    }
+
+    const even = offsetsForRow(false).map(v => (v===0?"c":(v>0?`c+${v}`:`c${v}`))).join(", ");
+    const odd  = offsetsForRow(true ).map(v => (v===0?"c":(v>0?`c+${v}`:`c${v}`))).join(", ");
+
+    mappingHintEl.innerHTML =
+      `<b>Parents picked from row above (r-1):</b><br>` +
+      `Even rows: <span class="kbd">${even}</span><br>` +
+      `Odd rows: <span class="kbd">${odd}</span>`;
+  }
+
+  function updateAddonExplain(){
+    if (addonModeEl.value === "none"){
+      addonExplainEl.innerHTML =
+        `Addon is OFF. Using: <span class="kbd">s[m+n] = XOR(s[m..m+n-1])</span>`;
+      return;
+    }
+
+    // addonModeEl.value === "s1s2"
+    const idxText = (mIndexingEl.value === "math1")
+      ? `Parity uses math m=1 for the first generated step (s[n+1]).`
+      : `Parity uses JS m=0 for the first generated step (s[n+1]).`;
+
+    addonExplainEl.innerHTML =
+      `Addon is ON: <span class="kbd">s[m+n] = XOR(window) XOR a(m)</span><br>` +
+      `where <span class="kbd">a(m)=s1 if m even, s2 if m odd</span> (s1=first seed bit, s2=second seed bit).<br>` +
+      `<span style="opacity:0.9">${idxText}</span>`;
+  }
+
+  function updatePill(){
+    const n = getSeedN();
+    pillInfo.textContent = `K=${K} • N=${n}`;
+  }
+
+  // --- Resize preserving grid ---
+  function resizeGrid(newRows, newCols, colAnchor="left"){
+    newRows = clamp(newRows, 5, 400);
+    newCols = clamp(newCols, 5, 400);
+
+    const oldRows = ROWS, oldCols = COLS;
+    const oldGrid = grid;
+
+    const ng = Array.from({length:newRows}, ()=>Array.from({length:newCols}, ()=>0));
+    const rCount = Math.min(oldRows, newRows);
+
+    let srcStart=0, dstStart=0;
+    if (colAnchor === "center"){
+      if (newCols >= oldCols) dstStart = Math.floor((newCols-oldCols)/2);
+      else srcStart = Math.floor((oldCols-newCols)/2);
+    }
+    const copyLen = Math.min(oldCols-srcStart, newCols-dstStart);
+
+    for (let r=0;r<rCount;r++){
+      for (let i=0;i<copyLen;i++){
+        ng[r][dstStart+i] = oldGrid[r][srcStart+i] ? 1 : 0;
+      }
+    }
+
+    ROWS = newRows;
+    COLS = newCols;
+    grid = ng;
+
+    colsEl.value = COLS;
+    rowsEl.value = ROWS;
+
+    getSeedN();
+    scheduleRecompute(`Resized to ${COLS}×${ROWS} (${colAnchor} anchor).`);
+  }
+
+  function rebuildWipe(){
+    COLS = clamp(+colsEl.value || 80, 5, 400);
+    ROWS = clamp(+rowsEl.value || 60, 5, 400);
+    colsEl.value = COLS; rowsEl.value = ROWS;
+
+    grid = Array.from({length:ROWS}, ()=>Array.from({length:COLS}, ()=>0));
+    getSeedN();
+    scheduleRecompute("Rebuilt (wiped).");
+  }
+
+  // --- Top row ops ---
+  function clearTop(){
+    for (let c=0;c<COLS;c++) grid[0][c]=0;
+    scheduleRecompute("Top row cleared.");
+  }
+  function randomTop(){
+    for (let c=0;c<COLS;c++) grid[0][c] = (Math.random()<0.5)?0:1;
+    scheduleRecompute("Top row randomized.");
+  }
+  function invertTop(){
+    for (let c=0;c<COLS;c++) grid[0][c]^=1;
+    scheduleRecompute("Top row inverted.");
+  }
+
+  // --- Seed input helpers ---
+  function parseBits(str){
+    const bits=[];
+    for (const ch of str) if (ch==='0'||ch==='1') bits.push(ch==='1'?1:0);
+    return bits;
+  }
+  function applySeedFromInput(){
+    const n=getSeedN();
+    const bits=parseBits(seedBitsEl.value||"");
+    for (let i=0;i<n;i++) grid[0][i] = (bits[i] ?? 0) & 1;
+    scheduleRecompute("Seed applied.");
+  }
+  function randomSeed(){
+    const n=getSeedN();
+    for (let i=0;i<n;i++) grid[0][i]=(Math.random()<0.5)?0:1;
+    scheduleRecompute("Seed randomized.");
+  }
+  function clearSeed(){
+    const n=getSeedN();
+    for (let i=0;i<n;i++) grid[0][i]=0;
+    scheduleRecompute("Seed cleared.");
+  }
+  function oneMiddleSeed(){
+    const n=getSeedN();
+    for (let i=0;i<n;i++) grid[0][i]=0;
+    grid[0][Math.floor(n/2)] = 1;
+    scheduleRecompute("Seed set: single 1.");
+  }
+  function zeroAfterN(){
+    const n=getSeedN();
+    for (let i=n;i<COLS;i++) grid[0][i]=0;
+    scheduleRecompute("Top row after N set to 0.");
+  }
+
+  // --- Export / Import ---
+  function exportSettings(){
+    const obj = {
+      cols: COLS, rows: ROWS,
+      cellSize: +cellSizeEl.value,
+      zoom: +zoomEl.value,
+      seedN: getSeedN(),
+      lockMode: lockModeEl.value,
+      autoGenTop: !!autoGenTopEl.checked,
+      seedBits: grid[0].slice(0, getSeedN()),
+      addonMode: addonModeEl.value,
+      mIndexing: mIndexingEl.value,
+      K,
+      preset: kPresetEl.value,
+      parentMode: parentModeEl.value,
+      ruleOut: Array.from(ruleOut),
+      colAnchor: colAnchorEl.value
+    };
+    jsonBox.value = JSON.stringify(obj, null, 2);
+    toast("Exported settings to JSON box.");
+  }
+
+  function importSettings(){
+    let obj;
+    try { obj = JSON.parse(jsonBox.value || "{}"); }
+    catch(e){ toast("Invalid JSON."); return; }
+
+    const newCols = clamp(obj.cols ?? COLS, 5, 400);
+    const newRows = clamp(obj.rows ?? ROWS, 5, 400);
+
+    resizeGrid(newRows, newCols, obj.colAnchor || colAnchorEl.value);
+
+    if (typeof obj.cellSize === "number") cellSizeEl.value = String(clamp(obj.cellSize, 6, 30));
+    if (typeof obj.zoom === "number") zoomEl.value = String(clamp(obj.zoom, 50, 180));
+
+    if (typeof obj.seedN === "number") seedNEl.value = String(clamp(obj.seedN, 1, newCols));
+    if (obj.lockMode === "lock" || obj.lockMode === "free") lockModeEl.value = obj.lockMode;
+    autoGenTopEl.checked = !!obj.autoGenTop;
+
+    if (obj.addonMode === "none" || obj.addonMode === "s1s2") addonModeEl.value = obj.addonMode;
+    if (obj.mIndexing === "math1" || obj.mIndexing === "js0") mIndexingEl.value = obj.mIndexing;
+
+    const n = getSeedN();
+    if (Array.isArray(obj.seedBits)){
+      for (let i=0;i<n;i++) grid[0][i] = (obj.seedBits[i] ? 1 : 0);
+    }
+
+    if (typeof obj.K === "number"){
+      K = clamp(obj.K, 2, 8);
+      kParentsEl.value = String(K);
+      ruleOut = new Uint8Array(1 << K);
+    }
+    if (obj.parentMode === "window" || obj.parentMode === "sides") parentModeEl.value = obj.parentMode;
+
+    if (Array.isArray(obj.ruleOut) && obj.ruleOut.length === (1<<K)){
+      for (let i=0;i<obj.ruleOut.length;i++) ruleOut[i] = (obj.ruleOut[i] ? 1 : 0);
+    } else {
+      if (typeof obj.preset === "string") kPresetEl.value = obj.preset;
+      applyKPreset(kPresetEl.value);
+    }
+
+    updateMappingHint();
+    renderRuleTable();
+    scheduleRecompute("Imported settings.");
+  }
+
+  // --- Fit view ---
+  function fitView(){
+    const stage = document.getElementById('stage');
+    const stageW = stage.clientWidth - 24;
+    const stageH = stage.clientHeight - 72;
+
+    const cell = clamp(+cellSizeEl.value || 12, 6, 30);
+    const pad = PAD;
+    const baseW = pad*2 + COLS*cell + cell/2;
+    const baseH = pad*2 + ROWS*cell;
+
+    const z = Math.min(stageW / baseW, stageH / baseH);
+    const pct = clamp(Math.floor(z * 100), 50, 180);
+    zoomEl.value = String(pct);
+    scheduleRecompute("Fit view applied.");
+  }
+
+  function downloadPng(){
+    recomputeAll();
+    const a = document.createElement('a');
+    a.href = cv.toDataURL('image/png');
+    a.download = `brick_automaton_${Date.now()}.png`;
+    a.click();
+    toast("Downloaded PNG.");
+  }
+
+  // --- Mouse painting (top row only) ---
+  cv.addEventListener('mousedown', (e) => {
+    const hit = pickCell(e.clientX, e.clientY);
+    if (!hit || hit.r !== 0) return;
+
+    const n = getSeedN();
+    if (isLocked() && hit.c >= n) return;
+
+    painting = true;
+    paintValue = grid[0][hit.c] ? 0 : 1;
+    applyTopCell(hit.c, paintValue);
+    e.preventDefault();
+  });
+
+  cv.addEventListener('mousemove', (e) => {
+    if (!painting) return;
+    const hit = pickCell(e.clientX, e.clientY);
+    if (!hit || hit.r !== 0) return;
+
+    const n = getSeedN();
+    if (isLocked() && hit.c >= n) return;
+
+    applyTopCell(hit.c, paintValue);
+  });
+
+  window.addEventListener('mouseup', () => painting = false);
+  cv.addEventListener('mouseleave', () => painting = false);
+
+  // --- Events wiring ---
+  seedNEl.addEventListener('change', () => { getSeedN(); scheduleRecompute("N changed."); });
+  lockModeEl.addEventListener('change', () => scheduleRecompute(isLocked() ? "Locked mode ON." : "Free mode ON."));
+  autoGenTopEl.addEventListener('change', () => scheduleRecompute("Top auto-gen toggled."));
+
+  addonModeEl.addEventListener('change', () => scheduleRecompute("Addon changed."));
+  mIndexingEl.addEventListener('change', () => scheduleRecompute("Addon parity indexing changed."));
+
+  applySeedBtn.addEventListener('click', applySeedFromInput);
+  genTopBtn.addEventListener('click', () => { generateTopRowFromSeed(); scheduleRecompute("Top row generated."); });
+  randSeedBtn.addEventListener('click', randomSeed);
+  clearSeedBtn.addEventListener('click', clearSeed);
+  oneMiddleSeedBtn.addEventListener('click', oneMiddleSeed);
+  zeroAfterNBtn.addEventListener('click', zeroAfterN);
+
+  kParentsEl.addEventListener('change', () => {
+    K = clamp(+kParentsEl.value, 2, 8);
+    ruleOut = new Uint8Array(1 << K);
+
+    updateMappingHint();
+    if (autoApplyPresetEl.checked) applyKPreset(kPresetEl.value);
+    else {
+      applyKPreset("parity");
+      kPresetEl.value = "parity";
+    }
+    updatePill();
+  });
+
+  parentModeEl.addEventListener('change', () => {
+    updateMappingHint();
+    scheduleRecompute("Parent mapping changed.");
+  });
+
+  applyKPresetBtn.addEventListener('click', () => applyKPreset(kPresetEl.value));
+  setAll0Btn.addEventListener('click', () => { ruleOut.fill(0); renderRuleTable(); scheduleRecompute("Rule set all to 0."); });
+  setAll1Btn.addEventListener('click', () => { ruleOut.fill(1); renderRuleTable(); scheduleRecompute("Rule set all to 1."); });
+
+  ruleFilterEl.addEventListener('input', () => renderRuleTable());
+
+  applySizeBtn.addEventListener('click', () => resizeGrid(+rowsEl.value||ROWS, +colsEl.value||COLS, colAnchorEl.value));
+  colMinusBtn.addEventListener('click', () => resizeGrid(ROWS, COLS-1, colAnchorEl.value));
+  colPlusBtn.addEventListener('click', () => resizeGrid(ROWS, COLS+1, colAnchorEl.value));
+  rowMinusBtn.addEventListener('click', () => resizeGrid(ROWS-1, COLS, colAnchorEl.value));
+  rowPlusBtn.addEventListener('click', () => resizeGrid(ROWS+1, COLS, colAnchorEl.value));
+  rebuildBtn.addEventListener('click', rebuildWipe);
+
+  cellSizeEl.addEventListener('input', () => scheduleRecompute());
+  zoomEl.addEventListener('input', () => scheduleRecompute());
+
+  fitViewBtn.addEventListener('click', fitView);
+  downloadPngBtn.addEventListener('click', downloadPng);
+
+  miniClear.addEventListener('click', clearTop);
+  miniRand.addEventListener('click', randomTop);
+  miniInvert.addEventListener('click', invertTop);
+
+  exportBtn.addEventListener('click', exportSettings);
+  importBtn.addEventListener('click', importSettings);
+
+  window.addEventListener('resize', () => scheduleRecompute());
+
+  // Keyboard shortcuts
+  window.addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
+    if (k === 'c') clearTop();
+    if (k === 'r') randomTop();
+    if (k === 'i') invertTop();
+  });
+
+  // --- Init ---
+  function init(){
+    grid = Array.from({length: ROWS}, ()=>Array.from({length: COLS}, ()=>0));
+
+    // default below-rule: parity
+    applyKPreset("parity");
+    kPresetEl.value = "parity";
+
+    updateMappingHint();
+    renderRuleTable();
+    renderSeedStrip();
+    updateAddonExplain();
+
+    resizeCanvas();
+    draw();
+    updatePill();
+    toast("Ready. Paint the top row (first N if locked).");
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

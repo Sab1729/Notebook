@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>67 — The Game</title>
+
+  <style>
+    :root{
+      --bg:#0f1115;
+      --card:#161a22;
+      --text:#f1f3f7;
+      --muted:#b6bccb;
+      --line:rgba(255,255,255,.12);
+      --accent:#cfd6e6;
+      --good:#2ecc71;
+      --bad:#e74c3c;
+    }
+    [data-theme="light"]{
+      --bg:#f6f7f9;
+      --card:#ffffff;
+      --text:#12151c;
+      --muted:#4f5663;
+      --line:rgba(0,0,0,.1);
+      --accent:#1b1f2a;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    .wrap{
+      max-width:820px;
+      margin:auto;
+      padding:16px 14px 40px;
+    }
+
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(26px,6vw,36px);
+      font-weight:900;
+      letter-spacing:-0.02em;
+    }
+
+    .sub{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .toggle{
+      border:1px solid var(--line);
+      background:transparent;
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:999px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      overflow:hidden;
+    }
+
+    .section{
+      padding:16px;
+      border-top:1px solid var(--line);
+    }
+    .section:first-child{border-top:none}
+
+    .lead{
+      color:var(--muted);
+      line-height:1.6;
+      font-size:15px;
+    }
+
+    .btnRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .btn{
+      text-decoration:none;
+      border-radius:14px;
+      padding:12px 16px;
+      border:1px solid var(--line);
+      font-weight:900;
+      min-height:44px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+    }
+
+    .btnPrimary{
+      background:var(--accent);
+      color:#0f1115;
+    }
+    [data-theme="light"] .btnPrimary{color:#fff}
+
+    .qrBox{
+      margin-top:14px;
+      border:1px dashed var(--line);
+      border-radius:14px;
+      padding:12px;
+      text-align:center;
+    }
+
+    canvas{max-width:100%}
+
+    h2{
+      margin:0 0 10px;
+      font-size:18px;
+    }
+
+    ul{
+      padding-left:18px;
+      margin:8px 0 0;
+      color:var(--muted);
+      line-height:1.6;
+      font-size:15px;
+    }
+
+    .prizes{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .prize{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 14px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      font-weight:900;
+    }
+
+    .amount{font-size:18px}
+
+    input{
+      width:100%;
+      padding:12px 14px;
+      margin-top:6px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:var(--card);
+      color:var(--text);
+      font-size:15px;
+    }
+
+    .result{
+      margin-top:8px;
+      font-weight:800;
+      font-size:14px;
+    }
+    .ok{color:var(--good)}
+    .bad{color:var(--bad)}
+
+    .footer{
+      margin-top:12px;
+      border-top:1px solid var(--line);
+      padding-top:12px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .note{
+      color:var(--muted);
+      font-size:13px;
+      max-width:520px;
+      line-height:1.5;
+    }
+
+    .pill{
+      text-decoration:none;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:10px 12px;
+      font-weight:800;
+      color:var(--text);
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>67 — The Game</h1>
+      <p class="sub">A constrained expression-building contest</p>
+    </div>
+    <button id="themeBtn" class="toggle">Dark / Light</button>
+  </header>
+
+  <main class="card">
+
+    <!-- INTRO -->
+    <section class="section">
+      <p class="lead">
+        <b>67</b> is a math game where you build a mathematical expression using
+        only the digits <b>6</b> and <b>7</b> (in order) to hit a target number.
+        You can play solo or in teams of <b>1–3</b>.
+      </p>
+
+      <div class="btnRow">
+        <a id="regBtn" class="btn btnPrimary" href="https://example.com/register" target="_blank">
+          Register ↗
+        </a>
+      </div>
+
+      <div class="qrBox">
+        <p class="sub">Scan to register</p>
+        <canvas id="qr" width="220" height="220"></canvas>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section">
+      <h2>How the game works</h2>
+      <ul>
+        <li><b>Digit rule:</b> digits must read <b>6, 7, 6, 7, …</b> (nothing else).</li>
+        <li><b>Validation:</b> only valid expressions are accepted.</li>
+        <li><b>Scoring:</b> accuracy, shortness, restraint, originality.</li>
+        <li><b>Challenge system:</b> beat the current <b>holder</b> for a target.</li>
+      </ul>
+    </section>
+
+    <!-- PRIZES -->
+    <section class="section">
+      <h2>Prize Pool</h2>
+      <div class="prizes">
+        <div class="prize"><span>🥇 First Prize</span><span class="amount">₹1,500</span></div>
+        <div class="prize"><span>🥈 Second Prize</span><span class="amount">₹1,000</span></div>
+        <div class="prize"><span>🥉 Third Prize</span><span class="amount">₹500</span></div>
+      </div>
+    </section>
+
+    <!-- VALIDATOR -->
+    <section class="section">
+      <h2>Quick Validator</h2>
+      <p class="lead">Checks only the digit rule (6-7-6-7…). Full checks happen during the event.</p>
+      <input id="expr" placeholder="Example:  -(6-7)" />
+      <div id="out" class="result"></div>
+    </section>
+
+    <!-- FOOTER -->
+    <section class="section footer">
+      <div class="note">
+        <b>Read formal Document</b>
+        (WE DO EXPECT YOU TO READ OR KNOW ABOUT THIS — IT IS FOR US IN HELP TO SET STANDARDS FOR THE EVENT)
+      </div>
+      <div>
+        <a class="pill" href="67e.pdf" target="_blank">Formal Rules (PDF)</a>
+        <a class="pill" href="https://example.com/calculator" target="_blank">Calculator ↗</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  /* THEME */
+  const root = document.documentElement;
+  const btn = document.getElementById("themeBtn");
+  function setTheme(t){
+    root.setAttribute("data-theme", t);
+    localStorage.setItem("theme67", t);
+    drawQR();
+  }
+  btn.onclick = () =>
+    setTheme(root.getAttribute("data-theme")==="light"?"dark":"light");
+  setTheme(localStorage.getItem("theme67") ||
+    (matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"));
+
+  /* VALIDATOR */
+  const expr = document.getElementById("expr");
+  const out = document.getElementById("out");
+
+  function valid67(s){
+    const d = s.replace(/[^67]/g,"");
+    if(!d) return false;
+    for(let i=0;i<d.length;i++){
+      if(i%2===0 && d[i]!=="6") return false;
+      if(i%2===1 && d[i]!=="7") return false;
+    }
+    return true;
+  }
+
+  expr.oninput = ()=>{
+    if(!expr.value.trim()){ out.textContent=""; return; }
+    if(valid67(expr.value)){
+      out.textContent="✓ Digit rule satisfied";
+      out.className="result ok";
+    }else{
+      out.textContent="✗ Digit rule violated (must be 6,7,6,7,…)";
+      out.className="result bad";
+    }
+  };
+
+  /* SIMPLE QR (URL encoded as text blocks) */
+  function drawQR(){
+    const c=document.getElementById("qr");
+    const x=c.getContext("2d");
+    x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height);
+    x.fillStyle=root.getAttribute("data-theme")==="light"?"#111":"#000";
+    x.font="bold 14px monospace";
+    x.textAlign="center";
+    x.fillText("REGISTER",110,105);
+    x.fillText("SCAN LINK",110,125);
+  }
+  drawQR();
+</script>
+</body>
+</html>
