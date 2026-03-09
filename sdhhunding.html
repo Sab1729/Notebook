@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aintnotanemptypage</title>
+  <style>
+    :root {
+      --bg: #050505;
+      --x: -9999px;
+      --y: -9999px;
+      --r: 180px;          /* visible core radius */
+      --soft: 130px;       /* feather edge */
+      --dim: 0.94;         /* darkness level */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+    }
+
+    .stage {
+      position: relative;
+      height: 100vh;
+      width: 100vw;
+      background: var(--bg);
+      cursor: none;
+    }
+
+    /* atmospheric grain & vignette */
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: -80px;
+      background:
+        radial-gradient(circle at 45% 50%, rgba(255,200,200,0.02) 0%, transparent 60%),
+        radial-gradient(circle at 50% 30%, transparent 30%, rgba(0,0,0,0.6) 90%),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 2px, transparent 2px, transparent 6px);
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(0.3px);
+    }
+
+    .content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      z-index: 1;
+    }
+
+    .hint-wrap {
+      max-width: 820px;
+      position: relative;
+      padding: 20px 24px;
+    }
+
+    /* faint ghost text (always visible, barely) */
+    .hint-shadow {
+      font-size: clamp(20px, 2.6vw, 34px);
+      line-height: 1.35;
+      color: rgba(255,255,255,0.02);
+      text-shadow:
+        0 2px 2px rgba(0,0,0,0.8),
+        0 0 20px rgba(0,0,0,0.9);
+      letter-spacing: 0.3px;
+      user-select: none;
+      font-weight: 400;
+    }
+
+    /* real message – only fully readable in torchlight */
+    .hint-real {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 24px;
+      font-size: clamp(20px, 2.6vw, 34px);
+      line-height: 1.35;
+      color: rgba(255,250,240,0.96);
+      text-shadow: 0 2px 16px #000000cc;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .hint-real small {
+      display: block;
+      margin-top: 16px;
+      font-size: 14px;
+      color: rgba(220,210,255,0.7);
+    }
+
+    /* hidden button – camouflaged until torch reveals it */
+    .secret {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      width: 52px;
+      height: 52px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.01);
+      color: rgba(255,255,255,0.1);
+      font-size: 1.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      z-index: 2;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, color 0.2s;
+      backdrop-filter: blur(2px);
+    }
+
+    .secret.revealed {
+      border-color: rgba(230,200,255,0.5);
+      background: rgba(255,255,255,0.1);
+      color: #ffe6b0;
+      box-shadow: 0 0 0 8px rgba(255,200,200,0.1), 0 0 30px #9f6eff33;
+    }
+
+    /* darkness overlay with hole */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+      background: rgba(0,0,0,var(--dim));
+      -webkit-mask-image: radial-gradient(circle at var(--x) var(--y), transparent 0, transparent calc(var(--r) - var(--soft)), rgba(0,0,0,1) var(--r));
+      mask-image: radial-gradient(circle at var(--x) var(--y), transparent 0, transparent calc(var(--r) - var(--soft)), #000 var(--r));
+      backdrop-filter: blur(0.5px);
+    }
+
+    /* extra glow inside torch */
+    .beam {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+      background: radial-gradient(circle at var(--x) var(--y), rgba(255,240,200,0.16) 0px, rgba(255,255,255,0.04) 120px, transparent 250px);
+      mix-blend-mode: overlay;
+    }
+
+    /* torch emoji */
+    .torch-emoji {
+      position: fixed;
+      left: 0;
+      top: 0;
+      transform: translate(-50%, -50%);
+      font-size: 32px;
+      z-index: 20;
+      pointer-events: none;
+      opacity: 0;
+      filter: drop-shadow(0 10px 12px black);
+      transition: opacity 0.15s;
+    }
+
+    /* note at bottom */
+    .note {
+      position: absolute;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%);
+      background: rgba(20,16,24,0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,215,255,0.15);
+      color: rgba(255,235,255,0.7);
+      padding: 10px 20px;
+      border-radius: 60px;
+      font-size: 0.9rem;
+      z-index: 15;
+      white-space: nowrap;
+      box-shadow: 0 8px 20px #00000055;
+    }
+
+    /* torch off mode (toggle with T) */
+    .no-torch .overlay,
+    .no-torch .beam {
+      display: none;
+    }
+
+    .no-torch .torch-emoji {
+      display: none;
+    }
+
+    .no-torch {
+      cursor: auto;
+    }
+
+    .no-torch .secret {
+      opacity: 1;
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,200,240,0.3);
+      color: #ffeca0;
+    }
+  </style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <!-- secret button linking to found.html -->
+    <a class="secret" id="secret" href="found.html" aria-label="hidden link" title="reveal me">✨</a>
+
+    <div class="content">
+      <div class="hint-wrap">
+        <div class="hint-shadow">click the top‑left shiny button</div>
+        <div class="hint-real">
+          click the top‑left shiny button ✦
+          <small>[0] [0]</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="beam" aria-hidden="true"></div>
+    <div class="overlay" aria-hidden="true"></div>
+    <div class="note"></div>
+  </div>
+
+  <div class="torch-emoji" id="torchEmoji">🔦</div>
+
+  <script>
+    (function() {
+      const stage = document.getElementById('stage');
+      const secret = document.getElementById('secret');
+      const torchEmoji = document.getElementById('torchEmoji');
+
+      let torchActive = false; // becomes true after first movement
+      let pointerX = -9999, pointerY = -9999;
+      let rafId = 0;
+
+      function setTorchPosition(x, y) {
+        pointerX = x;
+        pointerY = y;
+        if (rafId) return;
+        rafId = requestAnimationFrame(() => {
+          rafId = 0;
+          document.documentElement.style.setProperty('--x', pointerX + 'px');
+          document.documentElement.style.setProperty('--y', pointerY + 'px');
+          torchEmoji.style.left = pointerX + 'px';
+          torchEmoji.style.top = pointerY + 'px';
+          updateReveal();
+        });
+      }
+
+      function updateReveal() {
+        if (stage.classList.contains('no-torch')) return;
+        const rect = secret.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const dist = Math.hypot(centerX - pointerX, centerY - pointerY);
+        const threshold = 180; // matches --r
+        if (torchActive && dist < threshold) {
+          secret.classList.add('revealed');
+        } else {
+          secret.classList.remove('revealed');
+        }
+      }
+
+      function startTorch() {
+        if (torchActive) return;
+        torchActive = true;
+        torchEmoji.style.opacity = '1';
+      }
+
+      function handlePointer(e) {
+        if (stage.classList.contains('no-torch')) return;
+        startTorch();
+        let clientX = e.clientX, clientY = e.clientY;
+        if (e.touches) {
+          clientX = e.touches[0].clientX;
+          clientY = e.touches[0].clientY;
+        }
+        setTorchPosition(clientX, clientY);
+      }
+
+      window.addEventListener('pointermove', handlePointer);
+      window.addEventListener('touchmove', handlePointer, { passive: true });
+      window.addEventListener('touchstart', handlePointer, { passive: true });
+
+      // keep torch inside window on resize
+      window.addEventListener('resize', () => {
+        if (!torchActive) return;
+        let clampedX = Math.min(pointerX, window.innerWidth - 1);
+        let clampedY = Math.min(pointerY, window.innerHeight - 1);
+        setTorchPosition(clampedX, clampedY);
+      });
+
+      // keyboard toggle (T)
+      window.addEventListener('keydown', (e) => {
+        if (e.key.toLowerCase() === 't') {
+          stage.classList.toggle('no-torch');
+          if (stage.classList.contains('no-torch')) {
+            secret.classList.add('revealed'); // fully visible in no-torch mode
+          } else {
+            if (torchActive) updateReveal();
+            else secret.classList.remove('revealed');
+          }
+        }
+      });
+
+      // start with button not revealed
+      secret.classList.remove('revealed');
+    })();
+  </script>
+</body>
+</html>
