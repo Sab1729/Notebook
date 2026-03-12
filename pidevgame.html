@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pidev Math Worlds</title>
+  <style>
+    :root {
+      --bg: #07070c;
+      --panel: #11111a;
+      --panel-2: #171726;
+      --ink: #f8f8ff;
+      --muted: #b6b6d9;
+      --pink: #ff4fd8;
+      --cyan: #29f0ff;
+      --yellow: #ffe45e;
+      --lime: #7dff7a;
+      --orange: #ff9b42;
+      --red: #ff5e7a;
+      --border: #ffffff;
+      --shadow-a: 0 0 0 3px #000;
+      --shadow-b: 8px 8px 0 #000;
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body {
+      min-height: 100vh;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px),
+        radial-gradient(circle at top left, rgba(255,79,216,0.22), transparent 30%),
+        radial-gradient(circle at top right, rgba(41,240,255,0.18), transparent 25%),
+        radial-gradient(circle at bottom left, rgba(255,228,94,0.12), transparent 25%);
+      background-size: 28px 28px, 28px 28px, auto, auto, auto;
+    }
+
+    .wrap {
+      width: min(1260px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 20px 0 56px;
+    }
+
+    .hidden { display: none !important; }
+
+    .topbar {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: linear-gradient(180deg, #1f1f33, #11111a);
+      border: 3px solid var(--border);
+      border-radius: 999px;
+      box-shadow: var(--shadow-a), var(--shadow-b);
+      padding: 10px 18px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1.4rem, 3vw, 2.5rem);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-shadow: 3px 3px 0 #000;
+    }
+
+    .brand small {
+      display: block;
+      color: var(--yellow);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 2px;
+    }
+
+    .mini-stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      padding: 10px 14px;
+      border: 3px solid var(--border);
+      border-radius: 999px;
+      box-shadow: var(--shadow-a), 5px 5px 0 #000;
+      background: var(--panel);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .pill.cyan { background: linear-gradient(180deg, #0a5362, #0d2630); color: var(--cyan); }
+    .pill.pink { background: linear-gradient(180deg, #6a134f, #2b1027); color: #ffd5f6; }
+    .pill.yellow { background: linear-gradient(180deg, #6c580a, #2e2708); color: var(--yellow); }
+    .pill.lime { background: linear-gradient(180deg, #1e5d1d, #102710); color: var(--lime); }
+
+    .panel {
+      border: 4px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--panel-2), var(--panel));
+      box-shadow: var(--shadow-a), 10px 10px 0 #000;
+      overflow: hidden;
+    }
+
+    .hero-home {
+      padding: 20px;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(255,79,216,0.28), transparent 18%),
+        radial-gradient(circle at 88% 12%, rgba(41,240,255,0.22), transparent 18%),
+        linear-gradient(180deg, #1f1835, #131320 55%, #101018);
+      display: grid;
+      grid-template-columns: 1.1fr 320px;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+
+    .hero-copy {
+      padding: 12px;
+    }
+
+    .hero-copy h2 {
+      margin: 10px 0 10px;
+      font-size: clamp(2.5rem, 5vw, 5rem);
+      line-height: 0.92;
+      text-transform: uppercase;
+      text-shadow: 5px 5px 0 #000;
+    }
+
+    .hero-copy p {
+      max-width: 760px;
+      color: #e8e8ff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      background: var(--yellow);
+      color: #000;
+      border: 3px solid #000;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      box-shadow: 4px 4px 0 #000;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 3px solid #000;
+      border-radius: 18px;
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 5px 5px 0 #000;
+      transition: transform 120ms ease;
+    }
+
+    .btn:hover { transform: translate(-2px, -2px); }
+    .btn.primary { background: var(--yellow); color: #000; }
+    .btn.secondary { background: var(--cyan); color: #000; }
+    .btn.ghost { background: #fff; color: #000; }
+    .btn.pink { background: var(--pink); color: #000; }
+
+    .cat {
+      width: 170px;
+      height: 170px;
+      overflow: visible;
+      filter: drop-shadow(6px 8px 0 #000);
+    }
+
+    .cat .floaty {
+      animation: floaty 2.4s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    .cat .blink {
+      animation: blink 3.2s infinite;
+      transform-origin: center;
+    }
+
+    .cat .tail {
+      animation: tail 1.6s ease-in-out infinite;
+      transform-origin: 106px 110px;
+    }
+
+    .cat .ear-left { animation: ear 2.1s ease-in-out infinite; transform-origin: 44px 37px; }
+    .cat .ear-right { animation: ear 2.1s ease-in-out infinite 0.25s; transform-origin: 104px 37px; }
+
+    .mascot-box {
+      border: 4px solid #fff;
+      border-radius: 28px;
+      padding: 14px;
+      background: linear-gradient(180deg, #20132d, #11111a);
+      box-shadow: inset 0 0 0 4px #000, 8px 8px 0 #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      min-height: 100%;
+    }
+
+    .mascot-label {
+      font-size: 0.78rem;
+      font-weight: 900;
+      color: var(--lime);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      text-align: center;
+    }
+
+    .speech {
+      width: 100%;
+      background: #fff;
+      color: #000;
+      border: 3px solid #000;
+      border-radius: 18px;
+      padding: 12px;
+      font-weight: 800;
+      box-shadow: 4px 4px 0 #000;
+      text-align: center;
+      min-height: 74px;
+    }
+
+    .home-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .world-panel {
+      padding: 18px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-head h3 {
+      margin: 0;
+      font-size: 1.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      text-shadow: 3px 3px 0 #000;
+    }
+
+    .section-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .world-map {
+      display: grid;
+      gap: 18px;
+    }
+
+    .world-card {
+      border: 4px solid #fff;
+      border-radius: 26px;
+      background: linear-gradient(180deg, #19192a, #101018);
+      box-shadow: inset 0 0 0 4px #000, 8px 8px 0 #000;
+      padding: 18px;
+    }
+
+    .world-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .world-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .world-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      border: 3px solid #000;
+      box-shadow: 4px 4px 0 #000;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      color: #000;
+      font-weight: 900;
+    }
+
+    .world-icon.cyan { background: var(--cyan); }
+    .world-icon.yellow { background: var(--yellow); }
+    .world-icon.pink { background: var(--pink); }
+
+    .world-title h4 {
+      margin: 0;
+      font-size: 1.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .world-title span {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .world-progress {
+      padding: 10px 14px;
+      border: 3px solid #fff;
+      border-radius: 999px;
+      box-shadow: 4px 4px 0 #000;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: #151526;
+    }
+
+    .level-path {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .level-node {
+      position: relative;
+      min-height: 138px;
+      padding: 12px;
+      border: 4px solid #fff;
+      border-radius: 24px;
+      background: linear-gradient(180deg, #23162f, #171520);
+      box-shadow: inset 0 0 0 4px #000, 8px 8px 0 #000;
+      cursor: pointer;
+      transition: transform 120ms ease, filter 120ms ease;
+      text-align: left;
+      color: #fff;
+    }
+
+    .level-node:hover {
+      transform: translate(-3px, -3px) scale(1.01);
+      filter: brightness(1.08);
+    }
+
+    .level-node.locked {
+      opacity: 0.55;
+      filter: grayscale(0.25);
+      cursor: not-allowed;
+    }
+
+    .level-node.locked:hover { transform: none; }
+
+    .level-node .node-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .node-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      border: 3px solid #000;
+      box-shadow: 3px 3px 0 #000;
+      color: #000;
+      font-weight: 900;
+      background: var(--yellow);
+    }
+
+    .node-xp {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 3px solid #000;
+      box-shadow: 3px 3px 0 #000;
+      background: var(--cyan);
+      color: #000;
+      font-size: 0.76rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .level-node h5 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      line-height: 1.15;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .level-node p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: #e0e0f6;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .node-status {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 3px solid #000;
+      box-shadow: 3px 3px 0 #000;
+      color: #000;
+      background: var(--lime);
+    }
+
+    .node-status.current { background: var(--pink); }
+    .node-status.locked { background: #fff; }
+
+    .sidebar {
+      display: grid;
+      gap: 16px;
+      position: sticky;
+      top: 16px;
+    }
+
+    .side-card { padding: 16px; }
+
+    .side-title {
+      margin: 0 0 14px;
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .score {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .score-box {
+      padding: 14px;
+      border: 3px solid #fff;
+      border-radius: 18px;
+      box-shadow: 4px 4px 0 #000;
+      background: #161624;
+    }
+
+    .score-box b {
+      display: block;
+      font-size: 1.3rem;
+      margin-top: 6px;
+    }
+
+    .leader-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 0;
+      border-top: 2px dashed rgba(255,255,255,0.22);
+    }
+
+    .leader-item:first-child { border-top: 0; padding-top: 0; }
+    .rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: var(--pink);
+      color: #000;
+      border: 3px solid #000;
+      box-shadow: 3px 3px 0 #000;
+      font-weight: 900;
+      margin-right: 10px;
+      flex: 0 0 auto;
+    }
+
+    .leader-left {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .leader-left div { min-width: 0; }
+    .leader-left b, .leader-right b { display: block; }
+    .leader-left span, .leader-right span { color: var(--muted); font-size: 0.84rem; }
+    .leader-right { text-align: right; }
+
+    .play-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .hero {
+      position: relative;
+      padding: 18px;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(255,79,216,0.28), transparent 18%),
+        radial-gradient(circle at 88% 12%, rgba(41,240,255,0.22), transparent 18%),
+        linear-gradient(180deg, #1f1835, #131320 55%, #101018);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 220px;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .question-card {
+      border: 4px solid #fff;
+      border-radius: 28px;
+      background: linear-gradient(180deg, #101018, #0d0d14);
+      box-shadow: inset 0 0 0 4px #000, 10px 10px 0 #000;
+      padding: 22px;
+    }
+
+    .question-title {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 0.98;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      text-shadow: 4px 4px 0 #000;
+    }
+
+    .question-sub {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .mcq {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      border: 3px solid #fff;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #23233a, #161624);
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 800;
+      padding: 16px 18px;
+      cursor: pointer;
+      box-shadow: 0 0 0 3px #000, 6px 6px 0 #000;
+      transition: transform 120ms ease, background 120ms ease;
+    }
+
+    .option:hover, .option.active {
+      transform: translate(-2px, -2px);
+      background: linear-gradient(180deg, #29355a, #171f34);
+    }
+
+    .option strong {
+      display: inline-flex;
+      width: 34px;
+      height: 34px;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      border-radius: 999px;
+      background: var(--cyan);
+      color: #000;
+      border: 3px solid #000;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .accordion-wrap {
+      padding: 0 18px 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    details {
+      border: 4px solid #fff;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #171726, #101018);
+      box-shadow: var(--shadow-a), 7px 7px 0 #000;
+      overflow: hidden;
+    }
+
+    summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 16px 18px;
+      font-weight: 900;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+    .detail-content { padding: 0 18px 18px; color: var(--muted); }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+    .chip {
+      padding: 10px 12px;
+      border: 3px solid #fff;
+      border-radius: 999px;
+      box-shadow: 4px 4px 0 #000;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.78rem;
+      color: #000;
+      background: var(--pink);
+    }
+    .chip.cyan { background: var(--cyan); }
+    .chip.yellow { background: var(--yellow); }
+    .chip.lime { background: var(--lime); }
+
+    .footer-note {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes blink {
+      0%, 44%, 48%, 100% { transform: scaleY(1); }
+      46% { transform: scaleY(0.08); }
+    }
+
+    @keyframes tail {
+      0%, 100% { transform: rotate(10deg); }
+      50% { transform: rotate(-8deg); }
+    }
+
+    @keyframes ear {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-4deg); }
+    }
+
+    @media (max-width: 1100px) {
+      .home-grid, .play-layout, .hero-home { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .level-path { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      .wrap { width: min(100% - 18px, 1260px); }
+      .question-card { padding: 18px; }
+      .question-title { font-size: 1.8rem; }
+      .pill { font-size: 0.74rem; }
+      .score { grid-template-columns: 1fr; }
+      .level-path { grid-template-columns: 1fr; }
+      .hero-copy h2 { font-size: 2.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div style="font-size:2rem">🐾</div>
+        <div>
+          <small>Retro High-Contrast Mode</small>
+          <h1>Pidev Math Worlds</h1>
+        </div>
+      </div>
+      <div class="mini-stats">
+        <div class="pill cyan">Streak 16 🔥</div>
+        <div class="pill pink">Title Equation Tamer</div>
+        <div class="pill yellow">127 Levels Cleared</div>
+      </div>
+    </div>
+
+    <section id="homePage">
+      <div class="panel hero-home">
+        <div class="hero-copy">
+          <span class="eyebrow">Home Base · Choose a Level</span>
+          <h2>Play Math Like A Retro Adventure</h2>
+          <p>
+            Travel through worlds, clear puzzle stages, keep your streak alive, and let Pidev guide you through every challenge. Tap a level node to enter the question screen.
+          </p>
+          <div class="cta-row">
+            <button class="btn primary" id="jumpCurrentBtn">Jump to Current Level</button>
+            <button class="btn secondary">Daily Puzzle</button>
+            <button class="btn ghost">Hall of Fame</button>
+          </div>
+        </div>
+
+        <aside class="mascot-box">
+          <div class="mascot-label">Pidev is live</div>
+          <svg class="cat" viewBox="0 0 160 160" fill="none" aria-label="Animated Pidev mascot">
+            <g class="floaty">
+              <path class="tail" d="M110 108C132 102 144 120 136 138C132 146 121 148 115 141C122 138 125 131 121 125C117 119 111 116 103 116" stroke="#000" stroke-width="14" stroke-linecap="round"/>
+              <path class="tail" d="M110 108C132 102 144 120 136 138C132 146 121 148 115 141C122 138 125 131 121 125C117 119 111 116 103 116" stroke="#ff4fd8" stroke-width="8" stroke-linecap="round"/>
+              <path d="M35 64L44 34L64 54Z" fill="#29f0ff" stroke="#000" stroke-width="4" class="ear-left"/>
+              <path d="M125 64L116 34L96 54Z" fill="#29f0ff" stroke="#000" stroke-width="4" class="ear-right"/>
+              <rect x="28" y="48" width="104" height="86" rx="34" fill="#ffe45e" stroke="#000" stroke-width="6"/>
+              <ellipse cx="54" cy="84" rx="10" ry="12" fill="#fff" stroke="#000" stroke-width="4" class="blink"/>
+              <ellipse cx="106" cy="84" rx="10" ry="12" fill="#fff" stroke="#000" stroke-width="4" class="blink"/>
+              <circle cx="54" cy="86" r="4" fill="#000"/>
+              <circle cx="106" cy="86" r="4" fill="#000"/>
+              <path d="M80 92L74 104H86L80 92Z" fill="#ff9b42" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M66 110C72 118 88 118 94 110" stroke="#000" stroke-width="5" stroke-linecap="round"/>
+              <path d="M28 98H10" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+              <path d="M31 108H8" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+              <path d="M132 98H150" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+              <path d="M129 108H152" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="54" cy="86" r="12" stroke="#ff4fd8" stroke-width="2" opacity="0.6"/>
+              <circle cx="106" cy="86" r="12" stroke="#ff4fd8" stroke-width="2" opacity="0.6"/>
+            </g>
+          </svg>
+          <div class="speech" id="homeSpeech">Pick a glowing node on the map. Each one is a math mission.</div>
+        </aside>
+      </div>
+
+      <div class="home-grid">
+        <main class="panel world-panel">
+          <div class="section-head">
+            <div>
+              <h3>Level Worlds</h3>
+              <p>Each world feels like a stage map. Cleared levels glow, the current one pulses, locked ones stay sealed.</p>
+            </div>
+            <div class="pill lime">3 Worlds Unlocked</div>
+          </div>
+
+          <div class="world-map">
+            <section class="world-card">
+              <div class="world-header">
+                <div class="world-title">
+                  <div class="world-icon yellow">∑</div>
+                  <div>
+                    <h4>Algebra Forest</h4>
+                    <span>Linear equations, factor traps, quick wins</span>
+                  </div>
+                </div>
+                <div class="world-progress">9 / 12 Cleared</div>
+              </div>
+              <div class="level-path">
+                <button class="level-node" data-level="Level 09 · Sign Switch">
+                  <div class="node-top"><span class="node-badge">9</span><span class="node-xp">+15 XP</span></div>
+                  <h5>Sign Switch</h5>
+                  <p>Warm-up algebra node</p>
+                  <span class="node-status">Cleared</span>
+                </button>
+                <button class="level-node" data-level="Level 10 · Equalizer">
+                  <div class="node-top"><span class="node-badge">10</span><span class="node-xp">+20 XP</span></div>
+                  <h5>Equalizer</h5>
+                  <p>Balance both sides fast</p>
+                  <span class="node-status">Cleared</span>
+                </button>
+                <button class="level-node current-level" data-level="Level 11 · x Finder">
+                  <div class="node-top"><span class="node-badge">11</span><span class="node-xp">+20 XP</span></div>
+                  <h5>x Finder</h5>
+                  <p>Current playable level</p>
+                  <span class="node-status current">Current</span>
+                </button>
+                <button class="level-node locked" type="button">
+                  <div class="node-top"><span class="node-badge">12</span><span class="node-xp">+30 XP</span></div>
+                  <h5>Factor Trap</h5>
+                  <p>Unlock by clearing 11</p>
+                  <span class="node-status locked">Locked</span>
+                </button>
+              </div>
+            </section>
+
+            <section class="world-card">
+              <div class="world-header">
+                <div class="world-title">
+                  <div class="world-icon cyan">△</div>
+                  <div>
+                    <h4>Geometry Peaks</h4>
+                    <span>Angles, circles, and visual puzzles</span>
+                  </div>
+                </div>
+                <div class="world-progress">4 / 10 Cleared</div>
+              </div>
+              <div class="level-path">
+                <button class="level-node" data-level="Level 25 · Angle Pulse">
+                  <div class="node-top"><span class="node-badge">25</span><span class="node-xp">+35 XP</span></div>
+                  <h5>Angle Pulse</h5>
+                  <p>Find the missing interior angle</p>
+                  <span class="node-status">Cleared</span>
+                </button>
+                <button class="level-node" data-level="Level 26 · Radius Run">
+                  <div class="node-top"><span class="node-badge">26</span><span class="node-xp">+45 XP</span></div>
+                  <h5>Radius Run</h5>
+                  <p>Track the hidden radius</p>
+                  <span class="node-status">Cleared</span>
+                </button>
+                <button class="level-node" data-level="Level 27 · Chord Chase">
+                  <div class="node-top"><span class="node-badge">27</span><span class="node-xp">+50 XP</span></div>
+                  <h5>Chord Chase</h5>
+                  <p>Distance from center challenge</p>
+                  <span class="node-status">Cleared</span>
+                </button>
+                <button class="level-node" data-level="Level 28 · Circle Whisper">
+                  <div class="node-top"><span class="node-badge">28</span><span class="node-xp">+60 XP</span></div>
+                  <h5>Circle Whisper</h5>
+                  <p>Boss gate for this world</p>
+                  <span class="node-status current">Boss</span>
+                </button>
+              </div>
+            </section>
+
+            <section class="world-card">
+              <div class="world-header">
+                <div class="world-title">
+                  <div class="world-icon pink">∫</div>
+                  <div>
+                    <h4>Calculus Caverns</h4>
+                    <span>Derivatives, limits, and late-game paths</span>
+                  </div>
+                </div>
+                <div class="world-progress">1 / 8 Cleared</div>
+              </div>
+              <div class="level-path">
+                <button class="level-node" data-level="Level 41 · Limit Leap">
+                  <div class="node-top"><span class="node-badge">41</span><span class="node-xp">+75 XP</span></div>
+                  <h5>Limit Leap</h5>
+                  <p>Jump to the correct limit</p>
+                  <span class="node-status current">Hot</span>
+                </button>
+                <button class="level-node locked" type="button">
+                  <div class="node-top"><span class="node-badge">42</span><span class="node-xp">+85 XP</span></div>
+                  <h5>Silent Derivative</h5>
+                  <p>Unlock after 41</p>
+                  <span class="node-status locked">Locked</span>
+                </button>
+                <button class="level-node locked" type="button">
+                  <div class="node-top"><span class="node-badge">43</span><span class="node-xp">+90 XP</span></div>
+                  <h5>Tangent Tunnels</h5>
+                  <p>Unlock deeper in the world</p>
+                  <span class="node-status locked">Locked</span>
+                </button>
+                <button class="level-node locked" type="button">
+                  <div class="node-top"><span class="node-badge">44</span><span class="node-xp">+100 XP</span></div>
+                  <h5>Rate Rift</h5>
+                  <p>Final cavern gate</p>
+                  <span class="node-status locked">Locked</span>
+                </button>
+              </div>
+            </section>
+          </div>
+        </main>
+
+        <aside class="sidebar">
+          <section class="panel side-card">
+            <h3 class="side-title">Your Run</h3>
+            <div class="score">
+              <div class="score-box"><span>Current XP</span><b>2,710</b></div>
+              <div class="score-box"><span>Daily Streak</span><b>16 🔥</b></div>
+              <div class="score-box"><span>Next Title</span><b>Math Ranger</b></div>
+              <div class="score-box"><span>Progress</span><b>127 / 500</b></div>
+            </div>
+          </section>
+
+          <section class="panel side-card">
+            <h3 class="side-title">Hall of Fame</h3>
+            <div class="leader-item">
+              <div class="leader-left"><span class="rank">1</span><div><b>Aarav</b><span>Equation Tamer</span></div></div>
+              <div class="leader-right"><b>3120 XP</b><span>29 streak</span></div>
+            </div>
+            <div class="leader-item">
+              <div class="leader-left"><span class="rank">2</span><div><b>Mira</b><span>Proof Chaser</span></div></div>
+              <div class="leader-right"><b>2980 XP</b><span>21 streak</span></div>
+            </div>
+            <div class="leader-item">
+              <div class="leader-left"><span class="rank">3</span><div><b>You</b><span>Equation Tamer</span></div></div>
+              <div class="leader-right"><b>2710 XP</b><span>16 streak</span></div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <section id="playPage" class="hidden">
+      <div class="play-layout">
+        <main class="panel hero">
+          <div class="hero-grid">
+            <section class="question-card">
+              <div class="cta-row" style="margin-top:0; margin-bottom:14px;">
+                <button class="btn ghost" id="backHomeBtn">← Back To Level Map</button>
+              </div>
+              <span class="eyebrow" id="questionLevelTag">Level 28 · Featured MCQ</span>
+              <h2 class="question-title">What is the value of x?</h2>
+              <p class="question-sub">If 2x + 6 = 18, choose the correct answer.</p>
+
+              <div class="mcq" id="mcqGroup">
+                <button class="option active"><strong>A</strong> x = 6</button>
+                <button class="option"><strong>B</strong> x = 8</button>
+                <button class="option"><strong>C</strong> x = 12</button>
+                <button class="option"><strong>D</strong> x = 24</button>
+              </div>
+
+              <div class="cta-row">
+                <button class="btn primary">Submit Answer</button>
+                <button class="btn secondary" id="readBtn">Pidev Read Aloud</button>
+                <button class="btn ghost">Hint</button>
+              </div>
+            </section>
+
+            <aside class="mascot-box">
+              <div class="mascot-label">Pidev is live</div>
+              <svg class="cat" viewBox="0 0 160 160" fill="none" aria-label="Animated Pidev mascot">
+                <g class="floaty">
+                  <path class="tail" d="M110 108C132 102 144 120 136 138C132 146 121 148 115 141C122 138 125 131 121 125C117 119 111 116 103 116" stroke="#000" stroke-width="14" stroke-linecap="round"/>
+                  <path class="tail" d="M110 108C132 102 144 120 136 138C132 146 121 148 115 141C122 138 125 131 121 125C117 119 111 116 103 116" stroke="#ff4fd8" stroke-width="8" stroke-linecap="round"/>
+                  <path d="M35 64L44 34L64 54Z" fill="#29f0ff" stroke="#000" stroke-width="4" class="ear-left"/>
+                  <path d="M125 64L116 34L96 54Z" fill="#29f0ff" stroke="#000" stroke-width="4" class="ear-right"/>
+                  <rect x="28" y="48" width="104" height="86" rx="34" fill="#ffe45e" stroke="#000" stroke-width="6"/>
+                  <ellipse cx="54" cy="84" rx="10" ry="12" fill="#fff" stroke="#000" stroke-width="4" class="blink"/>
+                  <ellipse cx="106" cy="84" rx="10" ry="12" fill="#fff" stroke="#000" stroke-width="4" class="blink"/>
+                  <circle cx="54" cy="86" r="4" fill="#000"/>
+                  <circle cx="106" cy="86" r="4" fill="#000"/>
+                  <path d="M80 92L74 104H86L80 92Z" fill="#ff9b42" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+                  <path d="M66 110C72 118 88 118 94 110" stroke="#000" stroke-width="5" stroke-linecap="round"/>
+                  <path d="M28 98H10" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+                  <path d="M31 108H8" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+                  <path d="M132 98H150" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+                  <path d="M129 108H152" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+                  <circle cx="54" cy="86" r="12" stroke="#ff4fd8" stroke-width="2" opacity="0.6"/>
+                  <circle cx="106" cy="86" r="12" stroke="#ff4fd8" stroke-width="2" opacity="0.6"/>
+                </g>
+              </svg>
+              <div class="speech" id="speechBox">Hey solver! Isolate x by subtracting 6 first. You got this.</div>
+            </aside>
+          </div>
+
+          <div class="accordion-wrap">
+            <details>
+              <summary>
+                <span>Question Details</span>
+                <span>＋</span>
+              </summary>
+              <div class="detail-content">
+                <div class="chips">
+                  <span class="chip yellow">Algebra Forest</span>
+                  <span class="chip cyan">Easy</span>
+                  <span class="chip lime">+20 XP</span>
+                  <span class="chip">4.2k Solved</span>
+                </div>
+              </div>
+            </details>
+
+            <details>
+              <summary>
+                <span>Teacher Mode Preview</span>
+                <span>＋</span>
+              </summary>
+              <div class="detail-content">
+                Teachers can author MCQs, attach solutions, add Pidev voice lines, and control when hints or explanations appear.
+              </div>
+            </details>
+
+            <details>
+              <summary>
+                <span>Progress & Rewards</span>
+                <span>＋</span>
+              </summary>
+              <div class="detail-content">
+                Solve this level to protect your 16-day streak, climb the Hall of Fame, and move closer to your next title unlock.
+              </div>
+            </details>
+          </div>
+        </main>
+
+        <aside class="sidebar">
+          <section class="panel side-card">
+            <h3 class="side-title">Your Run</h3>
+            <div class="score">
+              <div class="score-box"><span>Current XP</span><b>2,710</b></div>
+              <div class="score-box"><span>Daily Streak</span><b>16 🔥</b></div>
+              <div class="score-box"><span>Next Title</span><b>Math Ranger</b></div>
+              <div class="score-box"><span>Progress</span><b>127 / 500</b></div>
+            </div>
+          </section>
+
+          <section class="panel side-card">
+            <h3 class="side-title">Hall of Fame</h3>
+            <div class="leader-item">
+              <div class="leader-left"><span class="rank">1</span><div><b>Aarav</b><span>Equation Tamer</span></div></div>
+              <div class="leader-right"><b>3120 XP</b><span>29 streak</span></div>
+            </div>
+            <div class="leader-item">
+              <div class="leader-left"><span class="rank">2</span><div><b>Mira</b><span>Proof Chaser</span></div></div>
+              <div class="leader-right"><b>2980 XP</b><span>21 streak</span></div>
+            </div>
+            <div class="leader-item">
+              <div class="leader-left"><span class="rank">3</span><div><b>You</b><span>Equation Tamer</span></div></div>
+              <div class="leader-right"><b>2710 XP</b><span>16 streak</span></div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <p class="footer-note">Now the prototype has a home page with a retro level-map flow: click a level node on the world map to enter the question screen.</p>
+  </div>
+
+  <script>
+    const options = document.querySelectorAll('.option');
+    const speechBox = document.getElementById('speechBox');
+    const readBtn = document.getElementById('readBtn');
+    const homeSpeech = document.getElementById('homeSpeech');
+    const questionLevelTag = document.getElementById('questionLevelTag');
+    const homePage = document.getElementById('homePage');
+    const playPage = document.getElementById('playPage');
+    const backHomeBtn = document.getElementById('backHomeBtn');
+    const jumpCurrentBtn = document.getElementById('jumpCurrentBtn');
+    const levelNodes = document.querySelectorAll('.level-node:not(.locked)');
+
+    const lines = [
+      'Hey solver! Isolate x by subtracting 6 first. You got this.',
+      'Retro tip: simplify step by step, then divide by 2.',
+      'Pidev believes in you. Pick the value that makes the equation true.'
+    ];
+
+    function showPlay(levelName) {
+      questionLevelTag.textContent = levelName + ' · Featured MCQ';
+      homePage.classList.add('hidden');
+      playPage.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showHome() {
+      playPage.classList.add('hidden');
+      homePage.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    levelNodes.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const levelName = btn.getAttribute('data-level') || 'Level 28';
+        homeSpeech.textContent = 'Launching ' + levelName + '. Pidev is opening the challenge gate.';
+        showPlay(levelName);
+      });
+    });
+
+    jumpCurrentBtn.addEventListener('click', () => showPlay('Level 11 · x Finder'));
+    backHomeBtn.addEventListener('click', showHome);
+
+    options.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        options.forEach((el) => el.classList.remove('active'));
+        btn.classList.add('active');
+        speechBox.textContent = 'Locked in: ' + btn.textContent.trim() + '. Ready to submit?';
+      });
+    });
+
+    let idx = 0;
+    readBtn.addEventListener('click', () => {
+      idx = (idx + 1) % lines.length;
+      speechBox.textContent = lines[idx];
+    });
+  </script>
+</body>
+</html>
